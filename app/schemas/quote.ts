@@ -7,8 +7,8 @@ export const lineItemSchema = z.object({
   id: z.string(),
   name: z.string().min(1, 'Nom requis'),
   description: z.string().optional().default(''),
-  quantity: z.number({ error: 'Nombre requis' }).positive('Doit être > 0'),
-  unitPrice: z.number({ error: 'Nombre requis' }).min(0, 'Doit être ≥ 0'),
+  quantity: z.number({ invalid_type_error: 'Nombre requis' }).positive('Doit être > 0'),
+  unitPrice: z.number({ invalid_type_error: 'Nombre requis' }).min(0, 'Doit être ≥ 0'),
 })
 
 export const quoteSchema = z

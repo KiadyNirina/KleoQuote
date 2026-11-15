@@ -8,22 +8,28 @@
           Renseignez les informations à gauche, l'aperçu se met à jour en temps réel.
         </p>
       </div>
-      <button
-        type="button"
-        class="px-3 py-2 rounded-md border border-slate-300 text-sm hover:bg-slate-50"
-        @click="onReset"
-      >
-        Réinitialiser
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="px-3 py-2 rounded-md border border-slate-300 text-sm hover:bg-slate-50"
+          @click="onReset"
+        >
+          Réinitialiser
+        </button>
+        <button
+          type="button"
+          class="px-3 py-2 rounded-md bg-slate-900 text-white text-sm hover:bg-slate-800"
+          @click="onExport"
+        >
+          Télécharger le PDF
+        </button>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-      <!-- Formulaire -->
       <div>
         <QuoteForm />
       </div>
-
-      <!-- Aperçu sticky -->
       <div class="lg:sticky lg:top-20">
         <QuotePreview :quote="quoteStore.current" :company="companyStore.settings" />
       </div>
@@ -37,10 +43,15 @@ import { useCompanyStore } from '~/stores/company'
 
 const quoteStore = useQuoteStore()
 const companyStore = useCompanyStore()
+const { exportQuote } = usePdfExport()
 
 function onReset() {
   if (confirm('Réinitialiser le devis en cours ?')) {
     quoteStore.reset()
   }
+}
+
+function onExport() {
+  exportQuote(quoteStore.current, companyStore.settings)
 }
 </script>

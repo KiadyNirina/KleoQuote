@@ -158,16 +158,16 @@
       <h2 class="text-base font-semibold">Conditions du devis</h2>
       <FormField label="Prestations incluses (une par ligne)">
         <FormTextarea
-          :model-value="quote.conditions.included.join('\n')"
+          v-model="includedText"
           :rows="3"
-          @update:model-value="quote.conditions.included = splitLines($event)"
+          placeholder="Une prestation par ligne"
         />
       </FormField>
       <FormField label="Prestations non incluses (une par ligne)">
         <FormTextarea
-          :model-value="quote.conditions.excluded.join('\n')"
+          v-model="excludedText"
           :rows="3"
-          @update:model-value="quote.conditions.excluded = splitLines($event)"
+          placeholder="Une prestation par ligne"
         />
       </FormField>
       <FormField label="Conditions de maintenance">
@@ -184,6 +184,7 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuoteStore } from '~/stores/quote'
+import { ref, watch } from 'vue'
 
 const quoteStore = useQuoteStore()
 const { current: quote } = storeToRefs(quoteStore)
@@ -198,6 +199,35 @@ const currencyOptions = [
 
 const discountType = computed(() => quote.value.discount?.type ?? 'none')
 const depositType = computed(() => quote.value.deposit?.type ?? 'none')
+
+const includedText = ref<string>(quote.value.conditions.included.join('\n'))
+const excludedText = ref<string>(quote.value.conditions.excluded.join('\n'))
+
+// Synchronisation locale -> store
+watch(includedText, (v) => {
+  quote.value.conditions.included = splitLines(v)
+})
+
+watch(excludedText, (v) => {
+  quote.value.conditions.excluded = splitLines(v)
+})
+
+// Synchronisation store -> local (utile si le store est réinitialisé ou restauré)
+watch(
+  () => quote.value.conditions.included,
+  (v) => {
+    const joined = v.join('\n')
+    if (joined !== includedText.value) includedText.value = joined
+  }
+)
+
+watch(
+  () => quote.value.conditions.excluded,
+  (v) => {
+    const joined = v.join('\n')
+    if (joined !== excludedText.value) excludedText.value = joined
+  }
+)
 
 function onDiscountTypeChange(value: string) {
   if (value === 'none') quote.value.discount = undefined

@@ -55,11 +55,11 @@ export function usePdfExport() {
     }
     if (quote.conditions.included.length) {
       conditionsParts.push({ text: 'Inclus :', fontSize: 8, bold: true, margin: [0, 4, 0, 1] })
-      conditionsParts.push({ ul: quote.conditions.included, fontSize: 8 })
+      conditionsParts.push({ ul: [...quote.conditions.included], fontSize: 8 })
     }
     if (quote.conditions.excluded.length) {
       conditionsParts.push({ text: 'Non inclus :', fontSize: 8, bold: true, margin: [0, 4, 0, 1] })
-      conditionsParts.push({ ul: quote.conditions.excluded, fontSize: 8 })
+      conditionsParts.push({ ul: [...quote.conditions.excluded], fontSize: 8 })
     }
     if (quote.conditions.maintenance) {
       conditionsParts.push({ text: `Maintenance : ${quote.conditions.maintenance}`, fontSize: 8, margin: [0, 4, 0, 0] })

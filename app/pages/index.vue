@@ -1,32 +1,13 @@
 <!-- app/pages/index.vue -->
 <template>
-  <div style="padding: 2rem; font-family: system-ui;">
-    <h1>KleoQuote</h1>
-    <p>Générateur de devis Kleonix</p>
-
-    <hr style="margin: 2rem 0;" />
-
-    <h2>Test de persistance Pinia</h2>
-    <p>Devis en cours : {{ quoteStore.current.id }}</p>
-    <p>Numéro : {{ quoteStore.current.number || '(vide)' }}</p>
-    <p>Entreprise : {{ companyStore.settings.name }}</p>
-
-    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-      <button @click="quoteStore.current.number = `DEV-${Date.now()}`">
-        Changer le numéro
-      </button>
-      <button @click="quoteStore.reset()">Réinitialiser le devis</button>
-    </div>
-    <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">
-      Cliquez sur « Changer le numéro », puis rechargez la page (F5) : le numéro doit rester affiché.
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-2xl font-semibold mb-1">Nouveau devis</h1>
+    <p class="text-sm text-slate-500 mb-6">
+      Renseignez les informations ci-dessous. L'aperçu se met à jour en temps réel.
     </p>
+
+    <div class="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
+      Le formulaire sera implémenté à l'étape 5.
+    </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { useQuoteStore } from '~/stores/quote'
-import { useCompanyStore } from '~/stores/company'
-
-const quoteStore = useQuoteStore()
-const companyStore = useCompanyStore()
-</script>

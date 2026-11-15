@@ -1,63 +1,63 @@
 # KleoQuote
 
-Générateur de devis. Application web Nuxt 4 permettant de créer, prévisualiser en temps réel et exporter en PDF des devis professionnels.
+Quote generator. Nuxt 4 web application to create, preview in real time, and export professional quotes as PDF.
 
 ---
 
-## Fonctionnalités
+## Features
 
-- Création et édition de devis (numéro, dates, client, objet, description)
-- Gestion des prestations (ajout, modification, suppression, total par ligne calculé)
-- Calcul automatique des montants : sous-total, remise, taxes, total, acompte, reste à payer
-- Choix de la devise (EUR, USD, MAD, GBP, CHF, MGA)
-- Aperçu du devis en temps réel (mise à jour à chaque saisie)
-- Export PDF A4 (logo, cachet, coordonnées, conditions, bloc « Bon pour accord »)
-- Paramètres entreprise (nom, logo, cachet, coordonnées, mentions légales, devise par défaut)
-- Persistance locale des brouillons et des paramètres
+- Create and edit quotes (number, dates, client, subject, description)
+- Manage line items (add, edit, delete, per-line total calculated)
+- Automatic amount calculations: subtotal, discount, taxes, total, deposit, remaining balance
+- Currency selection (EUR, USD, MAD, GBP, CHF, MGA)
+- Real-time quote preview (updates on every keystroke)
+- A4 PDF export (logo, stamp, contact details, conditions, "Bon pour accord" signature block)
+- Company settings (name, logo, stamp, contact details, legal information, default currency)
+- Local persistence of drafts and settings
 
 ---
 
-## Stack technique
+## Tech stack
 
-| Couche | Technologie |
+| Layer | Technology |
 |---|---|
 | Framework | Nuxt 4 + Vue 3 |
-| Langage | TypeScript (strict) |
-| Gestion d'état | Pinia + `pinia-plugin-persistedstate` |
-| Styles | Tailwind CSS v4 + shadcn-vue (Reka UI) |
+| Language | TypeScript (strict) |
+| State management | Pinia + `pinia-plugin-persistedstate` |
+| Styling | Tailwind CSS v4 + shadcn-vue (Reka UI) |
 | Validation | Zod |
-| Export PDF | `pdfmake` via `nuxt-pdfmake` |
-| Tests | Vitest |
+| PDF export | `pdfmake` via `nuxt-pdfmake` |
+| Testing | Vitest |
 
 ---
 
-## Structure du projet
+## Project structure
 
 ```
 app/
 ├─ components/
-│  ├─ company/          # Formulaire paramètres entreprise
-│  ├─ form/             # Champs réutilisables (Input, Textarea, Select, Field)
-│  └─ quote/            # Formulaire devis, éditeur de prestations, aperçu
+│  ├─ company/          # Company settings form
+│  ├─ form/             # Reusable fields (Input, Textarea, Select, Field)
+│  └─ quote/            # Quote form, line items editor, preview
 ├─ composables/
-│  ├─ useQuoteCalculations.ts   # Moteur de calcul (fonctions pures)
-│  └─ usePdfExport.ts           # Génération PDF
+│  ├─ useQuoteCalculations.ts   # Calculation engine (pure functions)
+│  └─ usePdfExport.ts           # PDF generation
 ├─ pages/
-│  ├─ index.vue         # Éditeur de devis
-│  └─ settings.vue      # Paramètres entreprise
+│  ├─ index.vue         # Quote editor
+│  └─ settings.vue      # Company settings
 ├─ stores/
-│  ├─ quote.ts          # Devis courant (persisté)
-│  └─ company.ts        # Paramètres entreprise (persisté)
+│  ├─ quote.ts          # Current quote (persisted)
+│  └─ company.ts        # Company settings (persisted)
 └─ utils/
-   └─ format.ts         # Formatage monétaire
+   └─ format.ts         # Currency formatting
 
 shared/
-├─ types/               # Types partagés (Quote, LineItem, CompanySettings…)
-└─ constants/           # Valeurs par défaut
+├─ types/               # Shared types (Quote, LineItem, CompanySettings…)
+└─ constants/           # Default values
 ```
 
 ---
 
-## Licence
+## License
 
-Projet interne Kleonix. Tous droits réservés.
+Internal Kleonix project. All rights reserved.

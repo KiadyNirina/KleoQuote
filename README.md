@@ -1,75 +1,63 @@
-# Nuxt Minimal Starter
+# KleoQuote
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Générateur de devis. Application web Nuxt 4 permettant de créer, prévisualiser en temps réel et exporter en PDF des devis professionnels.
 
-## Setup
+---
 
-Make sure to install dependencies:
+## Fonctionnalités
 
-```bash
-# npm
-npm install
+- Création et édition de devis (numéro, dates, client, objet, description)
+- Gestion des prestations (ajout, modification, suppression, total par ligne calculé)
+- Calcul automatique des montants : sous-total, remise, taxes, total, acompte, reste à payer
+- Choix de la devise (EUR, USD, MAD, GBP, CHF, MGA)
+- Aperçu du devis en temps réel (mise à jour à chaque saisie)
+- Export PDF A4 (logo, cachet, coordonnées, conditions, bloc « Bon pour accord »)
+- Paramètres entreprise (nom, logo, cachet, coordonnées, mentions légales, devise par défaut)
+- Persistance locale des brouillons et des paramètres
 
-# pnpm
-pnpm install
+---
 
-# yarn
-yarn install
+## Stack technique
 
-# bun
-bun install
+| Couche | Technologie |
+|---|---|
+| Framework | Nuxt 4 + Vue 3 |
+| Langage | TypeScript (strict) |
+| Gestion d'état | Pinia + `pinia-plugin-persistedstate` |
+| Styles | Tailwind CSS v4 + shadcn-vue (Reka UI) |
+| Validation | Zod |
+| Export PDF | `pdfmake` via `nuxt-pdfmake` |
+| Tests | Vitest |
+
+---
+
+## Structure du projet
+
+```
+app/
+├─ components/
+│  ├─ company/          # Formulaire paramètres entreprise
+│  ├─ form/             # Champs réutilisables (Input, Textarea, Select, Field)
+│  └─ quote/            # Formulaire devis, éditeur de prestations, aperçu
+├─ composables/
+│  ├─ useQuoteCalculations.ts   # Moteur de calcul (fonctions pures)
+│  └─ usePdfExport.ts           # Génération PDF
+├─ pages/
+│  ├─ index.vue         # Éditeur de devis
+│  └─ settings.vue      # Paramètres entreprise
+├─ stores/
+│  ├─ quote.ts          # Devis courant (persisté)
+│  └─ company.ts        # Paramètres entreprise (persisté)
+└─ utils/
+   └─ format.ts         # Formatage monétaire
+
+shared/
+├─ types/               # Types partagés (Quote, LineItem, CompanySettings…)
+└─ constants/           # Valeurs par défaut
 ```
 
-## Development Server
+---
 
-Start the development server on `http://localhost:3000`:
+## Licence
 
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Projet interne Kleonix. Tous droits réservés.

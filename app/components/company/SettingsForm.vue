@@ -49,6 +49,47 @@
           PNG, JPG ou SVG. L'image est redimensionnée automatiquement (max 400 px).
         </p>
       </FormField>
+
+      <FormField label="Cachet de l'entreprise">
+        <div class="flex items-center gap-4">
+          <div
+            v-if="company.stampDataUrl"
+            class="w-20 h-20 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden"
+          >
+            <img :src="company.stampDataUrl" alt="Cachet" class="max-w-full max-h-full object-contain" />
+          </div>
+          <div v-else class="w-20 h-20 rounded-md border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">
+            Aucun
+          </div>
+          <div class="flex flex-col gap-2">
+            <input
+              ref="stampInput"
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml"
+              class="hidden"
+              @change="onStampChange"
+            />
+            <button
+              type="button"
+              class="px-3 py-2 rounded-md border border-slate-300 text-sm hover:bg-slate-50"
+              @click="stampInput?.click()"
+            >
+              Choisir un fichier
+            </button>
+            <button
+              v-if="company.stampDataUrl"
+              type="button"
+              class="text-xs text-red-600 hover:underline text-left"
+              @click="company.stampDataUrl = undefined"
+            >
+              Supprimer le cachet
+            </button>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">
+          Apparaîtra dans le bloc « Bon pour accord » du PDF, zone émetteur.
+        </p>
+      </FormField>
     </section>
 
     <!-- Coordonnées -->
@@ -129,6 +170,17 @@ const currencyOptions = [
   { value: 'GBP', label: 'GBP — Livre sterling' },
   { value: 'CHF', label: 'CHF — Franc suisse' },
 ]
+
+const stampInput = ref<HTMLInputElement | null>(null)
+
+async function onStampChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  const dataUrl = await resizeImage(file, 300)
+  company.value.stampDataUrl = dataUrl
+  input.value = ''
+}
 
 async function onLogoChange(event: Event) {
   const input = event.target as HTMLInputElement

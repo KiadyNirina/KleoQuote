@@ -158,16 +158,36 @@ export function usePdfExport() {
             ]
           : []),
 
-        // Signature
+        // Bon pour accord
         {
           margin: [0, 30, 0, 0] as [number, number, number, number],
           stack: [
             { text: 'Bon pour accord', fontSize: 9, bold: true, margin: [0, 0, 0, 8] as [number, number, number, number] },
             {
               columns: [
-                { text: 'Date : ______________________', fontSize: 8, color: '#555' },
-                { text: 'Signature : ______________________', fontSize: 8, color: '#555' },
+                {
+                  width: '*',
+                  stack: [
+                    { text: company.name || 'Kleonix', fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
+                    { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                    { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                    ...(company.stampDataUrl
+                      ? [{ image: company.stampDataUrl, width: 70, margin: [0, 8, 0, 0] as [number, number, number, number] }]
+                      : []),
+                  ],
+                },
+                {
+                  width: '*',
+                  stack: [
+                    { text: quote.client.company || 'Client', fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
+                    { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                    { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                    { text: 'Nom : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                    { text: 'Cachet : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                  ],
+                },
               ],
+              columnGap: 20,
             },
           ],
         },

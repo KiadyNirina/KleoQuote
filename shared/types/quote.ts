@@ -62,6 +62,7 @@ export interface Quote {
 export interface CompanySettings {
   name: string
   logoDataUrl?: string
+  stampDataUrl?: string
   address: string
   email: string
   phone: string

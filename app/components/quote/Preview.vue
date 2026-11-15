@@ -175,17 +175,32 @@
         </div>
       </div>
 
-      <!-- Signature -->
+      <!-- Bon pour accord -->
       <div class="pt-6 border-t border-slate-200">
-        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Bon pour accord</div>
-        <div class="grid grid-cols-2 gap-4 text-xs text-slate-600">
-          <div>
-            <div class="mb-8">Date :</div>
-            <div>Signature :</div>
+        <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Bon pour accord</div>
+
+        <div class="grid grid-cols-2 gap-6 text-xs text-slate-600">
+          <!-- Émetteur : Kleonix -->
+          <div class="space-y-3">
+            <div class="font-medium text-slate-700">{{ company.name || 'Kleonix' }}</div>
+            <div>Date : ____________________</div>
+            <div>Signature : ____________________</div>
+            <div v-if="company.stampDataUrl" class="pt-2">
+              <img
+                :src="company.stampDataUrl"
+                alt="Cachet"
+                class="max-h-20 object-contain"
+              />
+            </div>
           </div>
-          <div>
-            <div class="mb-8">Nom :</div>
-            <div>Cachet :</div>
+
+          <!-- Client -->
+          <div class="space-y-3">
+            <div class="font-medium text-slate-700">{{ quote.client.company || 'Client' }}</div>
+            <div>Date : ____________________</div>
+            <div>Signature : ____________________</div>
+            <div>Nom : ____________________</div>
+            <div>Cachet : ____________________</div>
           </div>
         </div>
       </div>

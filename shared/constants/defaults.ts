@@ -37,6 +37,7 @@ export function createEmptyQuote(): Quote {
 export function createDefaultCompany(): CompanySettings {
   return {
     name: 'Kleonix',
+    stampDataUrl: undefined,
     address: '',
     email: '',
     phone: '',

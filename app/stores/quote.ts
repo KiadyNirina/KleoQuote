@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import type { Quote } from '#shared/types/quote'
 import { createEmptyQuote } from '#shared/constants/defaults'
+import { useCompanyStore } from '~/stores/company'
 
 export const useQuoteStore = defineStore('quote', {
   state: () => ({
@@ -10,7 +11,10 @@ export const useQuoteStore = defineStore('quote', {
 
   actions: {
     reset() {
-      this.current = createEmptyQuote()
+      const company = useCompanyStore()
+      const quote = createEmptyQuote()
+      quote.currency = company.settings.defaultCurrency
+      this.current = quote
     },
 
     replace(quote: Quote) {

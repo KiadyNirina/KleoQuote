@@ -1,5 +1,20 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+// nuxt.config.ts
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true }
+  devtools: { enabled: true },
+
+  modules: [
+    '@pinia/nuxt',
+    'pinia-plugin-persistedstate/nuxt',
+  ],
+
+  pinia: {
+    storesDirs: ['app/stores/**'],
+  },
+
+  typescript: {
+    strict: true,
+    typeCheck: true,
+  },
+
+  compatibilityDate: '2025-07-01',
 })

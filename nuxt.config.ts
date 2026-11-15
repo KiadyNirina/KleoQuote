@@ -31,4 +31,16 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-07-01',
+
+  app: {
+    head: {
+      title: 'KleoQuote — Générateur de devis Kleonix',
+      htmlAttrs: {
+        lang: 'fr',
+      },
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
+    },
+  },
 })

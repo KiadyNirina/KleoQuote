@@ -41,6 +41,14 @@
 import { useQuoteStore } from '~/stores/quote'
 import { useCompanyStore } from '~/stores/company'
 
+useSeoMeta({
+  title: 'Nouveau devis — KleoQuote',
+  description: 'Créez et prévisualisez un devis Kleonix en temps réel, puis exportez-le en PDF.',
+  ogTitle: 'KleoQuote — Générateur de devis Kleonix',
+  ogDescription: 'Créez et prévisualisez un devis Kleonix en temps réel, puis exportez-le en PDF.',
+  twitterCard: 'summary',
+})
+
 const quoteStore = useQuoteStore()
 const companyStore = useCompanyStore()
 const { exportQuote } = usePdfExport()

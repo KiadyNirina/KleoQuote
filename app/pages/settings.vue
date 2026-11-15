@@ -9,3 +9,13 @@
     <CompanySettingsForm />
   </div>
 </template>
+
+<script setup lang="ts">
+useSeoMeta({
+  title: 'Paramètres entreprise — KleoQuote',
+  description: "Configurez l'identité de Kleonix : logo, cachet, coordonnées et mentions légales.",
+  ogTitle: 'Paramètres — KleoQuote',
+  ogDescription: "Configurez l'identité de Kleonix pour les devis.",
+  twitterCard: 'summary',
+})
+</script>

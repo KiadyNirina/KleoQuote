@@ -195,6 +195,7 @@ const currencyOptions = [
   { value: 'MAD', label: 'MAD — Dirham marocain' },
   { value: 'GBP', label: 'GBP — Livre sterling' },
   { value: 'CHF', label: 'CHF — Franc suisse' },
+  { value: 'MGA', label: 'MGA — Ariary malgache' },
 ]
 
 const discountType = computed(() => quote.value.discount?.type ?? 'none')

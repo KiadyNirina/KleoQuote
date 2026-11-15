@@ -1,5 +1,5 @@
 // shared/types/quote.ts
-export type Currency = 'EUR' | 'USD' | 'MAD' | 'GBP' | 'CHF'
+export type Currency = 'EUR' | 'USD' | 'MAD' | 'GBP' | 'CHF' | 'MGA'
 
 export interface LineItem {
   id: string

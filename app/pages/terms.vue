@@ -32,7 +32,7 @@
       <section class="mb-8">
         <h2 class="text-lg font-semibold text-slate-900 mb-3">3. Données et confidentialité</h2>
         <p class="text-sm text-slate-700 leading-relaxed mb-3">
-          Les devis, les paramètres de l'entreprise et les images (logo, cachet)
+          Les devis, les paramètres de l'entreprise, l'historique des devis enregistrés et les images (logo, cachet)
           sont stockés dans le <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">localStorage</code>
           du navigateur. Aucune donnée n'est transmise à un serveur tiers.
         </p>

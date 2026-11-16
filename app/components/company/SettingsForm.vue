@@ -6,7 +6,7 @@
       <h2 class="text-base font-semibold">Identité</h2>
 
       <FormField label="Nom de l'entreprise" :required="true">
-        <FormInput v-model="company.name" />
+        <FormInput v-model="company.name" placeholder="ex : Kleonix" />
       </FormField>
 
       <FormField label="Logo">
@@ -96,17 +96,21 @@
     <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
       <h2 class="text-base font-semibold">Coordonnées</h2>
       <FormField label="Adresse">
-        <FormTextarea v-model="company.address" :rows="2" />
+        <FormTextarea
+          v-model="company.address"
+          :rows="2"
+          placeholder="ex : Lot II M 45 Bis, Antananarivo 101, Madagascar"
+        />
       </FormField>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField label="Email">
-          <FormInput v-model="company.email" type="email" />
+          <FormInput v-model="company.email" type="email" placeholder="ex : contact@kleonix.mg" />
         </FormField>
         <FormField label="Téléphone">
-          <FormInput v-model="company.phone" />
+          <FormInput v-model="company.phone" placeholder="ex : +261 34 00 000 00" />
         </FormField>
         <FormField label="Site web">
-          <FormInput v-model="company.website" placeholder="https://" />
+          <FormInput v-model="company.website" placeholder="ex : https://kleonix.mg" />
         </FormField>
         <FormField label="Devise par défaut">
           <FormSelect v-model="company.defaultCurrency" :options="currencyOptions" />
@@ -118,10 +122,18 @@
     <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
       <h2 class="text-base font-semibold">Informations administratives</h2>
       <FormField label="Mentions légales (SIRET, TVA intracom, RCS…)">
-        <FormTextarea v-model="company.legalInfo" :rows="3" />
+        <FormTextarea
+          v-model="company.legalInfo"
+          :rows="3"
+          placeholder="ex : NIF 1234567890 — STAT 98765 11 2024 0 12345"
+        />
       </FormField>
       <FormField label="Conditions générales par défaut">
-        <FormTextarea v-model="company.defaultTerms" :rows="6" />
+        <FormTextarea
+          v-model="company.defaultTerms"
+          :rows="6"
+          placeholder="ex : Devis valable 30 jours. Acompte de 30 % à la commande. Solde à la livraison."
+        />
       </FormField>
     </section>
 

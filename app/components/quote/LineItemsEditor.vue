@@ -23,16 +23,17 @@
           </button>
 
           <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- Vos champs FormField / FormInput existants -->
             <FormField label="Nom de la prestation" :required="true">
               <FormInput
                 :model-value="item.name"
+                placeholder="ex : Développement page d'accueil"
                 @update:model-value="update(index, { name: $event })"
               />
             </FormField>
             <FormField label="Description">
               <FormInput
                 :model-value="item.description"
+                placeholder="ex : Intégration responsive avec animation"
                 @update:model-value="update(index, { description: $event })"
               />
             </FormField>

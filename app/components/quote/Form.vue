@@ -6,7 +6,7 @@
       <h2 class="text-base font-semibold">En-tête du devis</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FormField label="Numéro de devis" :required="true">
-          <FormInput v-model="quote.number" />
+          <FormInput v-model="quote.number" placeholder="ex : DEV-2026-001" />
         </FormField>
         <FormField label="Date de création" :required="true">
           <FormInput v-model="quote.createdAt" type="date" />
@@ -28,19 +28,19 @@
       <h2 class="text-base font-semibold">Client</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField label="Société" :required="true">
-          <FormInput v-model="quote.client.company" />
+          <FormInput v-model="quote.client.company" placeholder="ex : ACME SARL" />
         </FormField>
         <FormField label="Contact" :required="true">
-          <FormInput v-model="quote.client.contactName" />
+          <FormInput v-model="quote.client.contactName" placeholder="ex : Jean Rakoto" />
         </FormField>
         <FormField label="Email" :required="true">
-          <FormInput v-model="quote.client.email" type="email" />
+          <FormInput v-model="quote.client.email" type="email" placeholder="ex : contact@acme.mg" />
         </FormField>
         <FormField label="Téléphone">
-          <FormInput v-model="quote.client.phone" />
+          <FormInput v-model="quote.client.phone" placeholder="ex : +261 34 00 000 00" />
         </FormField>
         <FormField label="Adresse" :required="true">
-          <FormInput v-model="quote.client.address" />
+          <FormInput v-model="quote.client.address" placeholder="ex : 12 rue de l'Indépendance, Antananarivo" />
         </FormField>
       </div>
     </section>
@@ -49,10 +49,14 @@
     <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
       <h2 class="text-base font-semibold">Objet du devis</h2>
       <FormField label="Titre" :required="true">
-        <FormInput v-model="quote.title" placeholder="ex : Refonte site vitrine" />
+        <FormInput v-model="quote.title" placeholder="ex : Refonte du site vitrine" />
       </FormField>
       <FormField label="Description générale">
-        <FormTextarea v-model="quote.description" :rows="4" />
+        <FormTextarea
+          v-model="quote.description"
+          :rows="4"
+          placeholder="ex : Refonte complète du site avec nouveau design, intégration CMS et formation de l'équipe."
+        />
       </FormField>
     </section>
 
@@ -149,7 +153,7 @@
       </div>
 
       <FormField label="Conditions de paiement">
-        <FormInput v-model="quote.paymentTerms" placeholder="ex : 30 jours à réception" />
+        <FormInput v-model="quote.paymentTerms" placeholder="ex : 30 % à la commande, solde à la livraison" />
       </FormField>
     </section>
 
@@ -158,23 +162,33 @@
       <h2 class="text-base font-semibold">Conditions du devis</h2>
       <FormField label="Prestations incluses (une par ligne)">
         <FormTextarea
-          v-model="includedText"
+          :model-value="quote.conditions.included.join('\n')"
           :rows="3"
-          placeholder="Une prestation par ligne"
+          placeholder="ex :&#10;Design responsive&#10;Intégration CMS&#10;Formation de 2 heures"
+          @update:model-value="quote.conditions.included = splitLines($event)"
         />
       </FormField>
       <FormField label="Prestations non incluses (une par ligne)">
         <FormTextarea
-          v-model="excludedText"
+          :model-value="quote.conditions.excluded.join('\n')"
           :rows="3"
-          placeholder="Une prestation par ligne"
+          placeholder="ex :&#10;Hébergement&#10;Nom de domaine&#10;Maintenance mensuelle"
+          @update:model-value="quote.conditions.excluded = splitLines($event)"
         />
       </FormField>
       <FormField label="Conditions de maintenance">
-        <FormTextarea v-model="quote.conditions.maintenance" :rows="2" />
+        <FormTextarea
+          v-model="quote.conditions.maintenance"
+          :rows="2"
+          placeholder="ex : Maintenance corrective incluse 3 mois, puis 50 000 Ar/mois"
+        />
       </FormField>
       <FormField label="Autres remarques">
-        <FormTextarea v-model="quote.conditions.otherNotes" :rows="2" />
+        <FormTextarea
+          v-model="quote.conditions.otherNotes"
+          :rows="2"
+          placeholder="ex : Tarifs valables sous réserve de disponibilité"
+        />
       </FormField>
     </section>
   </form>

@@ -41,8 +41,16 @@
     </main>
 
     <footer class="border-t border-slate-200 bg-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 text-xs text-slate-500 text-center">
-        © {{ year }} KleoQuote. Tous droits réservés.
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500"
+      >
+        <span>© {{ year }} KleoQuote. Tous droits réservés.</span>
+        <NuxtLink
+          to="/terms"
+          class="hover:text-slate-700 hover:underline underline-offset-4"
+        >
+          Conditions d'utilisation
+        </NuxtLink>
       </div>
     </footer>
   </div>

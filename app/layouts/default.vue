@@ -26,6 +26,13 @@
             Devis
           </NuxtLink>
           <NuxtLink
+            to="/history"
+            class="px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-100"
+            active-class="bg-slate-100"
+          >
+            Historique
+          </NuxtLink>
+          <NuxtLink
             to="/settings"
             class="px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-100"
             active-class="bg-slate-100"

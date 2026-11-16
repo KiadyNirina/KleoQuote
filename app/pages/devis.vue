@@ -9,6 +9,14 @@
         </p>
       </div>
       <div class="flex items-center gap-2">
+        <span v-if="savedMessage" class="text-xs text-green-600">Enregistré ✓</span>
+        <button
+          type="button"
+          class="px-3 py-2 rounded-md border border-slate-300 text-sm hover:bg-slate-50 disabled:opacity-50"
+          @click="onSave"
+        >
+          Enregistrer
+        </button>
         <button
           type="button"
           class="px-3 py-2 rounded-md border border-slate-300 text-sm hover:bg-slate-50"
@@ -18,7 +26,7 @@
         </button>
         <button
           type="button"
-          class="px-3 py-2 rounded-md bg-slate-900 text-white text-sm hover:bg-slate-800"
+          class="px-3 py-2 rounded-md bg-slate-900 text-white text-sm hover:bg-slate-800 disabled:opacity-50"
           @click="onExport"
         >
           Télécharger le PDF
@@ -40,6 +48,9 @@
 <script setup lang="ts">
 import { useQuoteStore } from '~/stores/quote'
 import { useCompanyStore } from '~/stores/company'
+import { useHistoryStore } from '~/stores/history'
+import { useQuoteCalculations } from '~/composables/useQuoteCalculations'
+import { computed } from 'vue'
 
 useSeoMeta({
   title: 'Nouveau devis — KleoQuote',
@@ -51,6 +62,8 @@ useSeoMeta({
 
 const quoteStore = useQuoteStore()
 const companyStore = useCompanyStore()
+const historyStore = useHistoryStore()
+const { computeQuoteTotals } = useQuoteCalculations()
 const { exportQuote } = usePdfExport()
 
 function onReset() {
@@ -61,5 +74,14 @@ function onReset() {
 
 function onExport() {
   exportQuote(quoteStore.current, companyStore.settings)
+}
+
+const savedMessage = ref(false)
+
+function onSave() {
+  const totals = computeQuoteTotals(quoteStore.current)
+  historyStore.save(quoteStore.current, totals.total)
+  savedMessage.value = true
+  setTimeout(() => { savedMessage.value = false }, 2000)
 }
 </script>

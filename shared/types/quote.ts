@@ -1,6 +1,10 @@
 // shared/types/quote.ts
 export type Currency = 'EUR' | 'USD' | 'MAD' | 'GBP' | 'CHF' | 'MGA'
 
+export type DocumentType = 'quote' | 'invoice'
+
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
+
 export interface LineItem {
   id: string
   name: string
@@ -43,9 +47,12 @@ export interface QuoteConditions {
 
 export interface Quote {
   id: string
+  type: DocumentType
   number: string
   createdAt: string
   validUntil: string
+  dueDate?: string
+  status?: InvoiceStatus
   deliveryDelay: string
   currency: Currency
   client: QuoteClient

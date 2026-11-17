@@ -69,6 +69,7 @@ describe('computeTaxes', () => {
 describe('computeQuoteTotals', () => {
   const makeQuote = (overrides: Partial<Quote> = {}): Quote => ({
     id: 'q1',
+    type: 'quote',
     number: 'DEV-001',
     createdAt: '2025-01-01',
     validUntil: '2025-01-31',

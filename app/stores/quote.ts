@@ -1,6 +1,6 @@
 // app/stores/quote.ts
 import { defineStore } from 'pinia'
-import type { Quote } from '#shared/types/quote'
+import type { Quote, DocumentType } from '#shared/types/quote'
 import { createEmptyQuote } from '#shared/constants/defaults'
 import { useCompanyStore } from '~/stores/company'
 
@@ -12,13 +12,20 @@ export const useQuoteStore = defineStore('quote', {
   actions: {
     reset() {
       const company = useCompanyStore()
-      const quote = createEmptyQuote()
+      const quote = createEmptyQuote('quote' as const)
       quote.currency = company.settings.defaultCurrency
       this.current = quote
     },
 
-    replace(quote: Quote) {
-      this.current = quote
+    newDocument(type: DocumentType) {
+      const company = useCompanyStore()
+      const doc = createEmptyQuote(type)
+      doc.currency = company.settings.defaultCurrency
+      this.current = doc
+    },
+
+    replace(doc: Quote) {
+      this.current = doc
     },
   },
 

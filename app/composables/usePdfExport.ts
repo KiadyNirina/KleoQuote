@@ -92,10 +92,33 @@ export function usePdfExport() {
               width: 'auto',
               alignment: 'right' as const,
               stack: [
-                { text: 'DEVIS', fontSize: 10, color: '#888' },
+                {
+                  text: quote.type === 'invoice' ? 'FACTURE' : 'DEVIS',
+                  fontSize: 10,
+                  color: '#888',
+                },
                 { text: quote.number || '—', fontSize: 14, bold: true },
-                { text: `Émis le ${formatDate(quote.createdAt)}`, fontSize: 8, color: '#555', margin: [0, 4, 0, 0] as [number, number, number, number] },
-                { text: `Valide jusqu'au ${formatDate(quote.validUntil)}`, fontSize: 8, color: '#555' },
+                {
+                  text: `Émis le ${formatDate(quote.createdAt)}`,
+                  fontSize: 8,
+                  color: '#555',
+                  margin: [0, 4, 0, 0] as [number, number, number, number],
+                },
+                ...(quote.type === 'invoice'
+                  ? [
+                      {
+                        text: `Échéance : ${formatDate(quote.dueDate || '')}`,
+                        fontSize: 8,
+                        color: '#555',
+                      },
+                    ]
+                  : [
+                      {
+                        text: `Valide jusqu'au ${formatDate(quote.validUntil)}`,
+                        fontSize: 8,
+                        color: '#555',
+                      },
+                    ]),
               ],
             },
           ],
@@ -158,39 +181,43 @@ export function usePdfExport() {
             ]
           : []),
 
-        // Bon pour accord
-        {
-          margin: [0, 30, 0, 0] as [number, number, number, number],
-          stack: [
-            { text: 'Bon pour accord', fontSize: 9, bold: true, margin: [0, 0, 0, 8] as [number, number, number, number] },
-            {
-              columns: [
-                {
-                  width: '*',
-                  stack: [
-                    { text: company.name || 'Kleonix', fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
-                    { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                    { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                    ...(company.stampDataUrl
-                      ? [{ image: company.stampDataUrl, width: 70, margin: [0, 8, 0, 0] as [number, number, number, number] }]
-                      : []),
-                  ],
-                },
-                {
-                  width: '*',
-                  stack: [
-                    { text: quote.client.company || 'Client', fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
-                    { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                    { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                    { text: 'Nom : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                    { text: 'Cachet : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                  ],
-                },
-              ],
-              columnGap: 20,
-            },
-          ],
-        },
+        // Signature (devis uniquement)
+        ...(quote.type === 'quote'
+          ? [
+              {
+                margin: [0, 30, 0, 0] as [number, number, number, number],
+                stack: [
+                  { text: 'Bon pour accord', fontSize: 9, bold: true, margin: [0, 0, 0, 8] as [number, number, number, number] },
+                  {
+                    columns: [
+                      {
+                        width: '*',
+                        stack: [
+                          { text: company.name || 'Kleonix', fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
+                          { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                          { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                          ...(company.stampDataUrl
+                            ? [{ image: company.stampDataUrl, width: 70, margin: [0, 8, 0, 0] as [number, number, number, number] }]
+                            : []),
+                        ],
+                      },
+                      {
+                        width: '*',
+                        stack: [
+                          { text: quote.client.company || 'Client', fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
+                          { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                          { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                          { text: 'Nom : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                          { text: 'Cachet : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                        ],
+                      },
+                    ],
+                    columnGap: 20,
+                  },
+                ],
+              },
+            ]
+          : []),
       ],
       styles: {},
       defaultStyle: { font: 'Roboto' },
@@ -203,7 +230,8 @@ export function usePdfExport() {
       return
     }
     const docDefinition = buildDocDefinition(quote, company)
-    pdfMake.createPdf(docDefinition).download(`Devis-${quote.number || 'brouillon'}.pdf`)
+    const prefix = quote.type === 'invoice' ? 'Facture' : 'Devis'
+    pdfMake.createPdf(docDefinition).download(`${prefix}-${quote.number || 'brouillon'}.pdf`)
   }
 
   return { exportQuote, buildDocDefinition }

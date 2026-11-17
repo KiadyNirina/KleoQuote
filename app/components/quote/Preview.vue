@@ -30,11 +30,18 @@
         </div>
 
         <div class="text-right">
-          <div class="text-xs uppercase tracking-wide text-slate-500">Devis</div>
+          <div class="text-xs uppercase tracking-wide text-slate-500">
+            {{ quote.type === 'invoice' ? 'Facture' : 'Devis' }}
+          </div>
           <div class="text-base font-semibold">{{ quote.number || '—' }}</div>
           <div class="text-xs text-slate-600 mt-1">
             Émis le {{ formatDate(quote.createdAt) }}<br />
-            Valide jusqu'au {{ formatDate(quote.validUntil) }}
+            <template v-if="quote.type === 'invoice'">
+              Échéance : {{ formatDate(quote.dueDate || '') }}
+            </template>
+            <template v-else>
+              Valide jusqu'au {{ formatDate(quote.validUntil) }}
+            </template>
           </div>
         </div>
       </div>
@@ -175,9 +182,13 @@
         </div>
       </div>
 
-      <!-- Bon pour accord -->
       <div class="pt-6 border-t border-slate-200">
-        <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Bon pour accord</div>
+        <template v-if="quote.type === 'invoice'">
+          <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Modalités de paiement</div>
+          <div class="text-xs text-slate-700">{{ quote.paymentTerms || 'À réception de facture' }}</div>
+        </template>
+        <template v-else>
+          <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Bon pour accord</div>
 
         <div class="grid grid-cols-2 gap-6 text-xs text-slate-600">
           <!-- Émetteur : Kleonix -->
@@ -203,6 +214,7 @@
             <div>Cachet : ____________________</div>
           </div>
         </div>
+        </template>
       </div>
     </div>
   </div>

@@ -5,14 +5,20 @@
     <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
       <h2 class="text-base font-semibold">En-tête du devis</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FormField label="Numéro de devis" :required="true">
-          <FormInput v-model="quote.number" placeholder="ex : DEV-2026-001" />
+        <FormField :label="isInvoice ? 'Numéro de facture' : 'Numéro de devis'" :required="true">
+          <FormInput v-model="quote.number" :placeholder="isInvoice ? 'ex : FAC-2026-001' : 'ex : DEV-2026-001'" />
         </FormField>
         <FormField label="Date de création" :required="true">
           <FormInput v-model="quote.createdAt" type="date" />
         </FormField>
-        <FormField label="Valide jusqu'au" :required="true">
+        <FormField v-if="!isInvoice" label="Valide jusqu'au" :required="true">
           <FormInput v-model="quote.validUntil" type="date" />
+        </FormField>
+        <FormField v-else label="Échéance de paiement" :required="true">
+          <FormInput v-model="quote.dueDate" type="date" />
+        </FormField>
+        <FormField v-if="isInvoice" label="Statut">
+          <FormSelect v-model="quote.status" :options="statusOptions" />
         </FormField>
         <FormField label="Délai de réalisation">
           <FormInput v-model="quote.deliveryDelay" placeholder="ex : 3 semaines" />
@@ -217,6 +223,15 @@ const depositType = computed(() => quote.value.deposit?.type ?? 'none')
 
 const includedText = ref<string>(quote.value.conditions.included.join('\n'))
 const excludedText = ref<string>(quote.value.conditions.excluded.join('\n'))
+
+const isInvoice = computed(() => quote.value.type === 'invoice')
+const statusOptions = [
+  { value: 'draft', label: 'Brouillon' },
+  { value: 'sent', label: 'Envoyée' },
+  { value: 'paid', label: 'Payée' },
+  { value: 'overdue', label: 'En retard' },
+  { value: 'cancelled', label: 'Annulée' },
+]
 
 // Synchronisation locale -> store
 watch(includedText, (v) => {

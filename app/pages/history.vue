@@ -135,25 +135,25 @@ import { useRouter } from 'vue-router'
 import { useHistoryStore } from '~/stores/history'
 import { useQuoteStore } from '~/stores/quote'
 import { formatMoney } from '~/utils/format'
-import type { Currency } from '#shared/types/quote'
+import type { Currency, Quote } from '#shared/types/quote'
 import { ref, computed } from 'vue'
+
+const router = useRouter()
+const historyStore = useHistoryStore()
+const quoteStore = useQuoteStore()
 
 const activeFilter = ref<'all' | 'quote' | 'invoice'>('all')
 
 const filteredEntries = computed(() => {
   if (activeFilter.value === 'all') return historyStore.entries
-  return historyStore.entries.filter((e) => e.quote.type === activeFilter.value)
+  return historyStore.entries.filter((e) => (e.quote.type ?? 'quote') === activeFilter.value)
 })
 
 const counts = computed(() => ({
   all: historyStore.entries.length,
-  quote: historyStore.entries.filter((e) => e.quote.type === 'quote').length,
+  quote: historyStore.entries.filter((e) => (e.quote.type ?? 'quote') === 'quote').length,
   invoice: historyStore.entries.filter((e) => e.quote.type === 'invoice').length,
 }))
-
-const router = useRouter()
-const historyStore = useHistoryStore()
-const quoteStore = useQuoteStore()
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString('fr-FR', {
@@ -184,7 +184,7 @@ function onDuplicate(id: string) {
 
 function onDelete(id: string, number: string) {
   const entry = historyStore.get(id)
-  const label = entry?.quote.type === 'invoice' ? 'la facture' : 'le devis'
+  const label = (entry?.quote.type ?? 'quote') === 'invoice' ? 'la facture' : 'le devis'
   if (confirm(`Supprimer ${label} « ${number} » de l'historique ?`)) {
     historyStore.remove(id)
   }

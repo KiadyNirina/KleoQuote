@@ -147,7 +147,22 @@
         Rétablir les valeurs par défaut
       </button>
       <div class="flex items-center gap-3">
-        <span v-if="savedMessage" class="text-xs text-green-600">{{ savedMessage }}</span>
+        <Transition
+          enter-active-class="transition duration-200"
+          enter-from-class="opacity-0 translate-y-1"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition duration-150"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+        >
+          <span
+            v-if="toast"
+            class="inline-flex items-center gap-2 text-xs text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm"
+          >
+            <span class="text-emerald-500">✓</span>
+            {{ toast }}
+          </span>
+        </Transition>
         <button
           type="button"
           class="px-3 py-2 rounded-md bg-slate-900 text-white text-sm hover:bg-slate-800"
@@ -157,23 +172,41 @@
         </button>
       </div>
     </div>
+
+    <!-- Dialog de confirmation (Reset) -->
+    <UiConfirmDialog
+      :open="showResetDialog"
+      title="Rétablir les valeurs par défaut ?"
+      message="Tous les paramètres actuels (logo, cachet, coordonnées, mentions légales) seront remplacés par les valeurs d'origine. Cette action est irréversible."
+      confirm-label="Rétablir"
+      :destructive="true"
+      @confirm="confirmReset"
+      @cancel="showResetDialog = false"
+    />
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useCompanyStore } from '~/stores/company'
-import type { CompanySettings } from '#shared/types/quote'
+import UiConfirmDialog from '~/components/ui/ConfirmDialog.vue'
 
 const companyStore = useCompanyStore()
 const { settings: company } = storeToRefs(companyStore)
 
-const draft = ref<CompanySettings>({ ...company.value })
-watch(company, (v) => { draft.value = { ...v } }, { deep: true })
-
 const fileInput = ref<HTMLInputElement | null>(null)
-const savedMessage = ref('')
+const stampInput = ref<HTMLInputElement | null>(null)
+
+// Toast
+const toast = ref('')
+function showToast(msg: string) {
+  toast.value = msg
+  setTimeout(() => { toast.value = '' }, 2500)
+}
+
+// Dialog de confirmation
+const showResetDialog = ref(false)
 
 const currencyOptions = [
   { value: 'EUR', label: 'EUR — Euro' },
@@ -183,8 +216,6 @@ const currencyOptions = [
   { value: 'CHF', label: 'CHF — Franc suisse' },
   { value: 'MGA', label: 'MGA — Ariary malgache' },
 ]
-
-const stampInput = ref<HTMLInputElement | null>(null)
 
 async function onStampChange(event: Event) {
   const input = event.target as HTMLInputElement
@@ -199,7 +230,6 @@ async function onLogoChange(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (!file) return
-
   const dataUrl = await resizeImage(file, 400)
   company.value.logoDataUrl = dataUrl
   input.value = ''
@@ -240,13 +270,16 @@ function resizeImage(file: File, maxSize: number): Promise<string> {
 
 function onSave() {
   companyStore.update({ ...company.value })
-  savedMessage.value = 'Enregistré'
-  setTimeout(() => { savedMessage.value = '' }, 2000)
+  showToast('Paramètres enregistrés')
 }
 
 function onReset() {
-  if (confirm('Rétablir les valeurs par défaut ? Les modifications seront perdues.')) {
-    companyStore.reset()
-  }
+  showResetDialog.value = true
+}
+
+function confirmReset() {
+  companyStore.reset()
+  showResetDialog.value = false
+  showToast('Valeurs par défaut restaurées')
 }
 </script>

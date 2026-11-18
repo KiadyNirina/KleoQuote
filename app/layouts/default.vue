@@ -23,7 +23,7 @@
             class="px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-100"
             active-class="bg-slate-100"
           >
-            Devis
+            Éditeur
           </NuxtLink>
           <NuxtLink
             to="/history"

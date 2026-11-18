@@ -3,7 +3,7 @@
   <div class="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
     <!-- Barre d'info -->
     <div class="px-4 py-2 border-b border-slate-200 bg-slate-50 text-xs text-slate-500 flex items-center justify-between">
-      <span>Aperçu du devis</span>
+      <span>{{ quote.type === 'invoice' ? 'Aperçu de la facture' : 'Aperçu du devis' }}</span>
       <span>{{ quote.currency }}</span>
     </div>
 
@@ -147,7 +147,7 @@
           quote.conditions.excluded.length ||
           quote.conditions.maintenance ||
           quote.conditions.otherNotes ||
-          quote.paymentTerms ||
+          (quote.paymentTerms && quote.type !== 'invoice') ||
           quote.deliveryDelay
         "
         class="space-y-3 pt-4 border-t border-slate-200"
@@ -156,23 +156,23 @@
           <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">Délai de réalisation</div>
           <div class="text-xs text-slate-700">{{ quote.deliveryDelay }}</div>
         </div>
-        <div v-if="quote.paymentTerms">
+        <div v-if="quote.paymentTerms && quote.type !== 'invoice'">
           <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">Modalités de paiement</div>
           <div class="text-xs text-slate-700 whitespace-pre-line">{{ quote.paymentTerms }}</div>
         </div>
-        <div v-if="quote.conditions.included.length">
+        <div v-if="quote.type !== 'invoice' && quote.conditions.included.length">
           <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">Inclus</div>
           <ul class="text-xs text-slate-700 list-disc list-inside space-y-0.5">
             <li v-for="(line, i) in quote.conditions.included" :key="i">{{ line }}</li>
           </ul>
         </div>
-        <div v-if="quote.conditions.excluded.length">
+        <div v-if="quote.type !== 'invoice' && quote.conditions.excluded.length">
           <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">Non inclus</div>
           <ul class="text-xs text-slate-700 list-disc list-inside space-y-0.5">
             <li v-for="(line, i) in quote.conditions.excluded" :key="i">{{ line }}</li>
           </ul>
         </div>
-        <div v-if="quote.conditions.maintenance">
+        <div v-if="quote.type !== 'invoice' && quote.conditions.maintenance">
           <div class="text-xs uppercase tracking-wide text-slate-500 mb-1">Maintenance</div>
           <div class="text-xs text-slate-700 whitespace-pre-line">{{ quote.conditions.maintenance }}</div>
         </div>
@@ -182,38 +182,33 @@
         </div>
       </div>
 
+      <!-- Bloc final : signature (devis) ou modalités (facture) -->
       <div class="pt-6 border-t border-slate-200">
         <template v-if="quote.type === 'invoice'">
           <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Modalités de paiement</div>
-          <div class="text-xs text-slate-700">{{ quote.paymentTerms || 'À réception de facture' }}</div>
+          <div class="text-xs text-slate-700 whitespace-pre-line">
+            {{ quote.paymentTerms || 'À réception de facture' }}
+          </div>
         </template>
         <template v-else>
           <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Bon pour accord</div>
-
-        <div class="grid grid-cols-2 gap-6 text-xs text-slate-600">
-          <!-- Émetteur : Kleonix -->
-          <div class="space-y-3">
-            <div class="font-medium text-slate-700">{{ company.name || 'Kleonix' }}</div>
-            <div>Date : ____________________</div>
-            <div>Signature : ____________________</div>
-            <div v-if="company.stampDataUrl" class="pt-2">
-              <img
-                :src="company.stampDataUrl"
-                alt="Cachet"
-                class="max-h-20 object-contain"
-              />
+          <div class="grid grid-cols-2 gap-6 text-xs text-slate-600">
+            <div class="space-y-3">
+              <div class="font-medium text-slate-700">{{ company.name || 'Kleonix' }}</div>
+              <div>Date : ____________________</div>
+              <div>Signature : ____________________</div>
+              <div v-if="company.stampDataUrl" class="pt-2">
+                <img :src="company.stampDataUrl" alt="Cachet" class="max-h-20 object-contain" />
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div class="font-medium text-slate-700">{{ quote.client.company || 'Client' }}</div>
+              <div>Date : ____________________</div>
+              <div>Signature : ____________________</div>
+              <div>Nom : ____________________</div>
+              <div>Cachet : ____________________</div>
             </div>
           </div>
-
-          <!-- Client -->
-          <div class="space-y-3">
-            <div class="font-medium text-slate-700">{{ quote.client.company || 'Client' }}</div>
-            <div>Date : ____________________</div>
-            <div>Signature : ____________________</div>
-            <div>Nom : ____________________</div>
-            <div>Cachet : ____________________</div>
-          </div>
-        </div>
         </template>
       </div>
     </div>

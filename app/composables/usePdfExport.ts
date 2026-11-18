@@ -15,43 +15,48 @@ export function usePdfExport() {
     return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
   }
 
+  // Nettoie le texte pour pdfmake : remplace les espaces insécables par des espaces standards
+  function cleanText(text: string): string {
+    return text.replace(/[\u00A0\u202F\u2009]/g, ' ')
+  }
+
   function buildDocDefinition(quote: Quote, company: CompanySettings): TDocumentDefinitions {
     const totals = computeQuoteTotals(quote)
 
     // Lignes du tableau des prestations
     const itemsBody = quote.items.length
       ? quote.items.map((item: LineItem) => [
-          { text: item.name || '—', fontSize: 9 },
+          { text: cleanText(item.name || '—'), fontSize: 9 },
           { text: String(item.quantity), fontSize: 9, alignment: 'right' as const },
-          { text: formatMoney(item.unitPrice, quote.currency), fontSize: 9, alignment: 'right' as const },
-          { text: formatMoney(computeLineTotal(item), quote.currency), fontSize: 9, alignment: 'right' as const },
+          { text: cleanText(formatMoney(item.unitPrice, quote.currency)), fontSize: 9, alignment: 'right' as const },
+          { text: cleanText(formatMoney(computeLineTotal(item), quote.currency)), fontSize: 9, alignment: 'right' as const },
         ])
       : [[{ text: 'Aucune prestation', colSpan: 4, alignment: 'center' as const, italics: true, color: '#999' }, {}, {}, {}]]
 
     // Récapitulatif financier
     const totalsLines: any[] = [
-      { text: `Sous-total : ${formatMoney(totals.subtotal, quote.currency)}`, alignment: 'right' as const, fontSize: 9, margin: [0, 2, 0, 0] },
+      { text: cleanText(`Sous-total : ${formatMoney(totals.subtotal, quote.currency)}`), alignment: 'right' as const, fontSize: 9, margin: [0, 2, 0, 0] },
     ]
     if (totals.discount > 0) {
-      totalsLines.push({ text: `Remise : − ${formatMoney(totals.discount, quote.currency)}`, alignment: 'right' as const, fontSize: 9 })
+      totalsLines.push({ text: cleanText(`Remise : − ${formatMoney(totals.discount, quote.currency)}`), alignment: 'right' as const, fontSize: 9 })
     }
     for (const tax of quote.taxes) {
       const taxAmount = (totals.subtotal - totals.discount) * tax.rate / 100
-      totalsLines.push({ text: `${tax.label || 'Taxe'} (${tax.rate}%) : ${formatMoney(taxAmount, quote.currency)}`, alignment: 'right' as const, fontSize: 9 })
+      totalsLines.push({ text: cleanText(`${tax.label || 'Taxe'} (${tax.rate}%) : ${formatMoney(taxAmount, quote.currency)}`), alignment: 'right' as const, fontSize: 9 })
     }
-    totalsLines.push({ text: `TOTAL : ${formatMoney(totals.total, quote.currency)}`, alignment: 'right' as const, bold: true, fontSize: 11, margin: [0, 4, 0, 0] })
+    totalsLines.push({ text: cleanText(`TOTAL : ${formatMoney(totals.total, quote.currency)}`), alignment: 'right' as const, bold: true, fontSize: 11, margin: [0, 4, 0, 0] })
     if (totals.depositAmount > 0) {
-      totalsLines.push({ text: `Acompte : ${formatMoney(totals.depositAmount, quote.currency)}`, alignment: 'right' as const, fontSize: 9 })
-      totalsLines.push({ text: `Reste à payer : ${formatMoney(totals.remaining, quote.currency)}`, alignment: 'right' as const, bold: true, fontSize: 10 })
+      totalsLines.push({ text: cleanText(`Acompte : ${formatMoney(totals.depositAmount, quote.currency)}`), alignment: 'right' as const, fontSize: 9 })
+      totalsLines.push({ text: cleanText(`Reste à payer : ${formatMoney(totals.remaining, quote.currency)}`), alignment: 'right' as const, bold: true, fontSize: 10 })
     }
 
     // Conditions
     const conditionsParts: any[] = []
     if (quote.deliveryDelay) {
-      conditionsParts.push({ text: `Délai de réalisation : ${quote.deliveryDelay}`, fontSize: 8, margin: [0, 2, 0, 0] })
+      conditionsParts.push({ text: cleanText(`Délai de réalisation : ${quote.deliveryDelay}`), fontSize: 8, margin: [0, 2, 0, 0] })
     }
     if (quote.paymentTerms) {
-      conditionsParts.push({ text: `Modalités de paiement : ${quote.paymentTerms}`, fontSize: 8, margin: [0, 2, 0, 0] })
+      conditionsParts.push({ text: cleanText(`Modalités de paiement : ${quote.paymentTerms}`), fontSize: 8, margin: [0, 2, 0, 0] })
     }
     if (quote.conditions.included.length) {
       conditionsParts.push({ text: 'Inclus :', fontSize: 8, bold: true, margin: [0, 4, 0, 1] })
@@ -62,10 +67,10 @@ export function usePdfExport() {
       conditionsParts.push({ ul: [...quote.conditions.excluded], fontSize: 8 })
     }
     if (quote.conditions.maintenance) {
-      conditionsParts.push({ text: `Maintenance : ${quote.conditions.maintenance}`, fontSize: 8, margin: [0, 4, 0, 0] })
+      conditionsParts.push({ text: cleanText(`Maintenance : ${quote.conditions.maintenance}`), fontSize: 8, margin: [0, 4, 0, 0] })
     }
     if (quote.conditions.otherNotes) {
-      conditionsParts.push({ text: `Remarques : ${quote.conditions.otherNotes}`, fontSize: 8, margin: [0, 4, 0, 0] })
+      conditionsParts.push({ text: cleanText(`Remarques : ${quote.conditions.otherNotes}`), fontSize: 8, margin: [0, 4, 0, 0] })
     }
 
     return {
@@ -81,11 +86,11 @@ export function usePdfExport() {
                 ...(company.logoDataUrl
                   ? [{ image: company.logoDataUrl, width: 80, margin: [0, 0, 0, 4] as [number, number, number, number] }]
                   : []),
-                { text: company.name || 'Kleonix', fontSize: 16, bold: true },
-                { text: company.address || '', fontSize: 8, color: '#555' },
-                { text: company.email || '', fontSize: 8, color: '#555' },
-                { text: company.phone || '', fontSize: 8, color: '#555' },
-                { text: company.website || '', fontSize: 8, color: '#555' },
+                { text: cleanText(company.name || 'Kleonix'), fontSize: 16, bold: true },
+                { text: cleanText(company.address || ''), fontSize: 8, color: '#555' },
+                { text: cleanText(company.email || ''), fontSize: 8, color: '#555' },
+                { text: cleanText(company.phone || ''), fontSize: 8, color: '#555' },
+                { text: cleanText(company.website || ''), fontSize: 8, color: '#555' },
               ],
             },
             {
@@ -97,9 +102,9 @@ export function usePdfExport() {
                   fontSize: 10,
                   color: '#888',
                 },
-                { text: quote.number || '—', fontSize: 14, bold: true },
+                { text: cleanText(quote.number || '—'), fontSize: 14, bold: true },
                 {
-                  text: `Émis le ${formatDate(quote.createdAt)}`,
+                  text: cleanText(`Émis le ${formatDate(quote.createdAt)}`),
                   fontSize: 8,
                   color: '#555',
                   margin: [0, 4, 0, 0] as [number, number, number, number],
@@ -107,14 +112,14 @@ export function usePdfExport() {
                 ...(quote.type === 'invoice'
                   ? [
                       {
-                        text: `Échéance : ${formatDate(quote.dueDate || '')}`,
+                        text: cleanText(`Échéance : ${formatDate(quote.dueDate || '')}`),
                         fontSize: 8,
                         color: '#555',
                       },
                     ]
                   : [
                       {
-                        text: `Valide jusqu'au ${formatDate(quote.validUntil)}`,
+                        text: cleanText(`Valide jusqu'au ${formatDate(quote.validUntil)}`),
                         fontSize: 8,
                         color: '#555',
                       },
@@ -129,11 +134,11 @@ export function usePdfExport() {
         {
           stack: [
             { text: 'CLIENT', fontSize: 8, color: '#888', margin: [0, 0, 0, 2] as [number, number, number, number] },
-            { text: quote.client.company || '—', fontSize: 10, bold: true },
-            { text: quote.client.contactName || '', fontSize: 8, color: '#555' },
-            { text: quote.client.address || '', fontSize: 8, color: '#555' },
-            { text: quote.client.email || '', fontSize: 8, color: '#555' },
-            { text: quote.client.phone || '', fontSize: 8, color: '#555' },
+            { text: cleanText(quote.client.company || '—'), fontSize: 10, bold: true },
+            { text: cleanText(quote.client.contactName || ''), fontSize: 8, color: '#555' },
+            { text: cleanText(quote.client.address || ''), fontSize: 8, color: '#555' },
+            { text: cleanText(quote.client.email || ''), fontSize: 8, color: '#555' },
+            { text: cleanText(quote.client.phone || ''), fontSize: 8, color: '#555' },
           ],
           margin: [0, 0, 0, 16] as [number, number, number, number],
         },
@@ -142,9 +147,9 @@ export function usePdfExport() {
         ...(quote.title
           ? [
               { text: 'OBJET', fontSize: 8, color: '#888', margin: [0, 0, 0, 2] as [number, number, number, number] },
-              { text: quote.title, fontSize: 10, bold: true },
+              { text: cleanText(quote.title), fontSize: 10, bold: true },
               ...(quote.description
-                ? [{ text: quote.description, fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] }]
+                ? [{ text: cleanText(quote.description), fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] }]
                 : []),
               { text: '', margin: [0, 0, 0, 12] as [number, number, number, number] },
             ]
@@ -193,7 +198,7 @@ export function usePdfExport() {
                       {
                         width: '*',
                         stack: [
-                          { text: company.name || 'Kleonix', fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
+                          { text: cleanText(company.name || 'Kleonix'), fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
                           { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
                           { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
                           ...(company.stampDataUrl
@@ -204,7 +209,7 @@ export function usePdfExport() {
                       {
                         width: '*',
                         stack: [
-                          { text: quote.client.company || 'Client', fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
+                          { text: cleanText(quote.client.company || 'Client'), fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
                           { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
                           { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
                           { text: 'Nom : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },

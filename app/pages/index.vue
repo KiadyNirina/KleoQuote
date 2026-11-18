@@ -1,7 +1,6 @@
 <!-- app/pages/index.vue -->
 <template>
   <div class="relative">
-    <!-- Halo décoratif subtil en arrière-plan -->
     <div
       class="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-gradient-to-b from-slate-100/80 to-transparent"
       aria-hidden="true"
@@ -14,7 +13,7 @@
           class="inline-flex items-center gap-2 text-xs font-medium tracking-wider uppercase text-slate-500 bg-white/70 backdrop-blur border border-slate-200 rounded-full px-3 py-1"
         >
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          Générateur de devis
+          Générateur de devis et factures
         </span>
       </div>
 
@@ -22,11 +21,11 @@
       <h1
         class="text-center text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-900 leading-[1.05]"
       >
-        Des devis clairs,<br />
+        Des documents clairs,<br />
         <span class="text-slate-400">en quelques minutes.</span>
       </h1>
       <p class="mt-6 text-center text-base sm:text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
-        Créez, personnalisez et exportez vos propositions commerciales.
+        Créez, personnalisez et exportez vos devis et factures.
         Aperçu en temps réel, calcul automatique, PDF prêt à envoyer.
       </p>
 
@@ -36,14 +35,20 @@
           to="/devis"
           class="group inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-colors"
         >
-          Créer un devis
+          Créer un document
           <span class="transition-transform group-hover:translate-x-0.5">→</span>
+        </NuxtLink>
+        <NuxtLink
+          to="/history"
+          class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 hover:bg-white hover:border-slate-400 transition-colors"
+        >
+          Voir l'historique
         </NuxtLink>
         <NuxtLink
           to="/settings"
           class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 hover:bg-white hover:border-slate-400 transition-colors"
         >
-          Paramètres entreprise
+          Paramètres
         </NuxtLink>
       </div>
 
@@ -62,7 +67,7 @@
         >
           <div class="min-w-0">
             <div class="text-xs uppercase tracking-wider text-slate-500 mb-0.5">
-              Brouillon en cours
+              {{ isDraftInvoice ? 'Facture en cours' : 'Devis en cours' }}
             </div>
             <div class="text-sm font-medium text-slate-900 truncate">
               {{ draftLabel }}
@@ -102,7 +107,7 @@
 
       <!-- Note de bas de page -->
       <p class="mt-16 text-center text-xs text-slate-400">
-        Les brouillons sont sauvegardés localement dans votre navigateur.
+        Les brouillons et l'historique sont sauvegardés localement dans votre navigateur.
       </p>
     </div>
   </div>
@@ -119,16 +124,18 @@ const hasDraft = computed(() => {
   return Boolean(q.number || q.client.company || q.title || q.items.length > 0)
 })
 
+const isDraftInvoice = computed(() => quoteStore.current.type === 'invoice')
+
 const draftLabel = computed(() => {
   const q = quoteStore.current
   const parts: string[] = []
   if (q.number) parts.push(q.number)
   if (q.client.company) parts.push(q.client.company)
   if (q.title) parts.push(q.title)
-  return parts.join(' — ') || 'Devis sans titre'
+  const fallback = q.type === 'invoice' ? 'Facture sans titre' : 'Devis sans titre'
+  return parts.join(' — ') || fallback
 })
 
-// Icônes SVG inline (Lucide, 16px, stroke courant)
 const features = [
   {
     title: 'Calcul automatique',
@@ -146,24 +153,24 @@ const features = [
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>`,
   },
   {
+    title: 'Devis et factures',
+    description: 'Basculez d\'un type à l\'autre, chaque document garde son format propre.',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`,
+  },
+  {
+    title: 'Historique local',
+    description: 'Retrouvez, ouvrez ou dupliquez vos documents enregistrés en un clic.',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  },
+  {
     title: 'Six devises',
     description: 'EUR, USD, MAD, GBP, CHF et MGA (Ariary) avec formatage natif.',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><line x1="12" y1="6" x2="12" y2="18"/></svg>`,
   },
-  {
-    title: 'Prestations réorganisables',
-    description: 'Glissez-déposez vos lignes pour ajuster l\'ordre en un instant.',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
-  },
-  {
-    title: 'Brouillons persistants',
-    description: 'Vos saisies sont conservées localement entre deux sessions.',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v13a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
-  },
 ]
 
 useSeoMeta({
-  title: 'KleoQuote — Générateur de devis',
-  description: 'Créez, prévisualisez et exportez vos devis en PDF en quelques minutes.',
+  title: 'KleoQuote — Générateur de devis et factures',
+  description: 'Créez, prévisualisez et exportez vos devis et factures en PDF en quelques minutes.',
 })
 </script>

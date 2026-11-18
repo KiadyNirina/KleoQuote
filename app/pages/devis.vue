@@ -121,8 +121,28 @@
       @cancel="closeDialog"
     />
 
-    <!-- Toasts -->
-    <UiToast />
+    <!-- Toasts inline -->
+    <Teleport to="body">
+      <div class="fixed bottom-6 right-6 z-[90] flex flex-col gap-2 pointer-events-none">
+        <TransitionGroup
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="opacity-0 translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition duration-150 ease-in"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+        >
+          <div
+            v-for="t in localToasts"
+            :key="t.id"
+            class="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-lg pointer-events-auto"
+          >
+            <span class="text-emerald-400">✓</span>
+            {{ t.message }}
+          </div>
+        </TransitionGroup>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -146,7 +166,18 @@ const companyStore = useCompanyStore()
 const historyStore = useHistoryStore()
 const { computeQuoteTotals } = useQuoteCalculations()
 const { exportQuote } = usePdfExport()
-const { show: showToast } = useToast()
+
+const localToasts = ref<{ id: number; message: string }[]>([])
+let toastCounter = 0
+
+function showToast(message: string) {
+  const id = ++toastCounter
+  localToasts.value.push({ id, message })
+  setTimeout(() => {
+    localToasts.value = localToasts.value.filter((t) => t.id !== id)
+  }, 2500)
+}
+
 const route = useRoute()
 
 const isInvoice = computed(() => quoteStore.current.type === 'invoice')

@@ -1,10 +1,26 @@
 <!-- app/components/quote/QuoteForm.vue -->
 <template>
   <form class="space-y-6" @submit.prevent>
-    <!-- En-tête -->
-    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
-      <h2 class="text-base font-semibold">En-tête du devis</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- 01. En-tête du document -->
+    <section class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-stone-900 text-amber-400 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            01
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">
+              {{ isInvoice ? 'Informations de la facture' : 'Informations du devis' }}
+            </h2>
+            <p class="text-xs text-stone-500">Référence, dates clés et devise de facturation.</p>
+          </div>
+        </div>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-stone-400 hidden sm:inline">
+          MÉTADONNÉES
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <FormField :label="isInvoice ? 'Numéro de facture' : 'Numéro de devis'" :required="true">
           <FormInput v-model="quote.number" :placeholder="isInvoice ? 'ex : FAC-2026-001' : 'ex : DEV-2026-001'" />
         </FormField>
@@ -29,9 +45,23 @@
       </div>
     </section>
 
-    <!-- Client -->
-    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
-      <h2 class="text-base font-semibold">Client</h2>
+    <!-- 02. Client -->
+    <section class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-stone-100 text-stone-800 border border-stone-200 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            02
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">Destinataire</h2>
+            <p class="text-xs text-stone-500">Coordonnées de l'entreprise ou du contact client.</p>
+          </div>
+        </div>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-stone-400 hidden sm:inline">
+          CLIENT
+        </span>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField label="Société" :required="true">
           <FormInput v-model="quote.client.company" placeholder="ex : ACME SARL" />
@@ -45,30 +75,64 @@
         <FormField label="Téléphone">
           <FormInput v-model="quote.client.phone" placeholder="ex : +261 34 00 000 00" />
         </FormField>
-        <FormField label="Adresse" :required="true">
-          <FormInput v-model="quote.client.address" placeholder="ex : 12 rue de l'Indépendance, Antananarivo" />
+        <div class="md:col-span-2">
+          <FormField label="Adresse complète" :required="true">
+            <FormInput v-model="quote.client.address" placeholder="ex : 12 rue de l'Indépendance, Antananarivo" />
+          </FormField>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. Objet & description -->
+    <section class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-stone-100 text-stone-800 border border-stone-200 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            03
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">
+              {{ isInvoice ? 'Objet de la facture' : 'Objet du devis' }}
+            </h2>
+            <p class="text-xs text-stone-500">Intitulé principal et contexte de la mission.</p>
+          </div>
+        </div>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-stone-400 hidden sm:inline">
+          PROJET
+        </span>
+      </div>
+
+      <div class="space-y-4">
+        <FormField label="Titre" :required="true">
+          <FormInput v-model="quote.title" placeholder="ex : Refonte du site vitrine" />
+        </FormField>
+        <FormField label="Description générale">
+          <FormTextarea
+            v-model="quote.description"
+            :rows="3"
+            placeholder="ex : Refonte complète du site avec nouveau design, intégration CMS et formation de l'équipe."
+          />
         </FormField>
       </div>
     </section>
 
-    <!-- Objet & description -->
-    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
-      <h2 class="text-base font-semibold">Objet du devis</h2>
-      <FormField label="Titre" :required="true">
-        <FormInput v-model="quote.title" placeholder="ex : Refonte du site vitrine" />
-      </FormField>
-      <FormField label="Description générale">
-        <FormTextarea
-          v-model="quote.description"
-          :rows="4"
-          placeholder="ex : Refonte complète du site avec nouveau design, intégration CMS et formation de l'équipe."
-        />
-      </FormField>
-    </section>
+    <!-- 04. Prestations -->
+    <section class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-amber-300 text-stone-950 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            04
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">Prestations & chiffrage</h2>
+            <p class="text-xs text-stone-500">Ajoutez vos lignes de produits, services ou forfaits.</p>
+          </div>
+        </div>
+        <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-stone-100 text-stone-700">
+          {{ quote.items.length }} {{ quote.items.length > 1 ? 'lignes' : 'ligne' }}
+        </span>
+      </div>
 
-    <!-- Prestations -->
-    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
-      <h2 class="text-base font-semibold">Prestations</h2>
       <QuoteLineItemsEditor
         :items="quote.items"
         :currency="quote.currency"
@@ -76,135 +140,185 @@
       />
     </section>
 
-    <!-- Financier -->
-    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
-      <h2 class="text-base font-semibold">Réductions, taxes et acompte</h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Remise">
-          <div class="flex gap-2">
-            <FormSelect
-              :model-value="discountType"
-              :options="[
-                { value: 'none', label: 'Aucune' },
-                { value: 'percentage', label: 'Pourcentage (%)' },
-                { value: 'fixed', label: 'Montant fixe' },
-              ]"
-              @update:model-value="onDiscountTypeChange"
-            />
-            <FormInput
-              v-if="discountType !== 'none'"
-              type="number"
-              :model-value="quote.discount?.value ?? 0"
-              @update:model-value="quote.discount = { type: discountType as 'percentage' | 'fixed', value: Number($event) }"
-            />
+    <!-- 05. Financier -->
+    <section class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-stone-100 text-stone-800 border border-stone-200 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            05
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">Réductions, taxes & acompte</h2>
+            <p class="text-xs text-stone-500">Ajustements financiers et modalités de règlement.</p>
           </div>
-        </FormField>
-
-        <FormField label="Acompte">
-          <div class="flex gap-2">
-            <FormSelect
-              :model-value="depositType"
-              :options="[
-                { value: 'none', label: 'Aucun' },
-                { value: 'percentage', label: 'Pourcentage (%)' },
-                { value: 'fixed', label: 'Montant fixe' },
-              ]"
-              @update:model-value="onDepositTypeChange"
-            />
-            <FormInput
-              v-if="depositType !== 'none'"
-              type="number"
-              :model-value="quote.deposit?.value ?? 0"
-              @update:model-value="quote.deposit = { type: depositType as 'percentage' | 'fixed', value: Number($event) }"
-            />
-          </div>
-        </FormField>
+        </div>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-stone-400 hidden sm:inline">
+          FINANCES
+        </span>
       </div>
 
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium text-slate-700">Taxes</span>
-          <button
-            type="button"
-            class="text-sm text-slate-600 hover:underline"
-            @click="addTax"
-          >
-            + Ajouter une taxe
-          </button>
-        </div>
-        <div v-if="quote.taxes.length === 0" class="text-sm text-slate-500">
-          Aucune taxe configurée.
-        </div>
-        <div v-for="(tax, i) in quote.taxes" :key="tax.id" class="flex gap-2 mb-2">
-          <FormInput
-            :model-value="tax.label"
-            placeholder="Libellé (ex : TVA 20%)"
-            @update:model-value="updateTax(i, { label: $event })"
-          />
-          <FormInput
-            type="number"
-            :model-value="tax.rate"
-            placeholder="Taux %"
-            @update:model-value="updateTax(i, { rate: Number($event) })"
-          />
-          <button
-            type="button"
-            class="px-2 text-red-600 hover:bg-red-50 rounded-md"
-            @click="removeTax(i)"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
+      <div class="space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-3.5 rounded-xl bg-stone-50/80 border border-stone-200/70">
+            <FormField label="Remise commerciale">
+              <div class="flex gap-2">
+                <FormSelect
+                  :model-value="discountType"
+                  :options="[
+                    { value: 'none', label: 'Aucune' },
+                    { value: 'percentage', label: 'Pourcentage (%)' },
+                    { value: 'fixed', label: 'Montant fixe' },
+                  ]"
+                  @update:model-value="onDiscountTypeChange"
+                />
+                <FormInput
+                  v-if="discountType !== 'none'"
+                  type="number"
+                  :model-value="quote.discount?.value ?? 0"
+                  @update:model-value="quote.discount = { type: discountType as 'percentage' | 'fixed', value: Number($event) }"
+                />
+              </div>
+            </FormField>
+          </div>
 
-      <FormField label="Conditions de paiement">
-        <FormInput v-model="quote.paymentTerms" placeholder="ex : 30 % à la commande, solde à la livraison" />
-      </FormField>
+          <div class="p-3.5 rounded-xl bg-stone-50/80 border border-stone-200/70">
+            <FormField label="Acompte demandé">
+              <div class="flex gap-2">
+                <FormSelect
+                  :model-value="depositType"
+                  :options="[
+                    { value: 'none', label: 'Aucun' },
+                    { value: 'percentage', label: 'Pourcentage (%)' },
+                    { value: 'fixed', label: 'Montant fixe' },
+                  ]"
+                  @update:model-value="onDepositTypeChange"
+                />
+                <FormInput
+                  v-if="depositType !== 'none'"
+                  type="number"
+                  :model-value="quote.deposit?.value ?? 0"
+                  @update:model-value="quote.deposit = { type: depositType as 'percentage' | 'fixed', value: Number($event) }"
+                />
+              </div>
+            </FormField>
+          </div>
+        </div>
+
+        <!-- Bloc Taxes -->
+        <div class="p-4 rounded-xl bg-stone-50/80 border border-stone-200/70 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-stone-700">Taxes applicables</span>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-900 text-white text-xs font-semibold hover:bg-stone-800 transition-colors cursor-pointer"
+              @click="addTax"
+            >
+              <span class="text-amber-400 font-bold">+</span>
+              <span>Ajouter une taxe</span>
+            </button>
+          </div>
+
+          <div v-if="quote.taxes.length === 0" class="text-xs text-stone-500 py-1">
+            Aucune taxe configurée (ex : TVA 20 %).
+          </div>
+
+          <div class="space-y-2">
+            <div v-for="(tax, i) in quote.taxes" :key="tax.id" class="flex items-center gap-2">
+              <div class="flex-1">
+                <FormInput
+                  :model-value="tax.label"
+                  placeholder="Libellé (ex : TVA 20%)"
+                  @update:model-value="updateTax(i, { label: $event })"
+                />
+              </div>
+              <div class="w-28">
+                <FormInput
+                  type="number"
+                  :model-value="tax.rate"
+                  placeholder="Taux %"
+                  @update:model-value="updateTax(i, { rate: Number($event) })"
+                />
+              </div>
+              <button
+                type="button"
+                aria-label="Supprimer cette taxe"
+                class="w-9 h-9 rounded-lg border border-stone-200 bg-white text-stone-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                @click="removeTax(i)"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <FormField label="Conditions de paiement">
+          <FormInput v-model="quote.paymentTerms" placeholder="ex : 30 % à la commande, solde à la livraison" />
+        </FormField>
+      </div>
     </section>
 
-    <!-- Conditions -->
-    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
-      <h2 class="text-base font-semibold">Conditions du devis</h2>
-      <FormField label="Prestations incluses (une par ligne)">
-        <FormTextarea
-          :model-value="quote.conditions.included.join('\n')"
-          :rows="3"
-          placeholder="ex :&#10;Design responsive&#10;Intégration CMS&#10;Formation de 2 heures"
-          @update:model-value="quote.conditions.included = splitLines($event)"
-        />
-      </FormField>
-      <FormField label="Prestations non incluses (une par ligne)">
-        <FormTextarea
-          :model-value="quote.conditions.excluded.join('\n')"
-          :rows="3"
-          placeholder="ex :&#10;Hébergement&#10;Nom de domaine&#10;Maintenance mensuelle"
-          @update:model-value="quote.conditions.excluded = splitLines($event)"
-        />
-      </FormField>
-      <FormField label="Conditions de maintenance">
-        <FormTextarea
-          v-model="quote.conditions.maintenance"
-          :rows="2"
-          placeholder="ex : Maintenance corrective incluse 3 mois, puis 50 000 Ar/mois"
-        />
-      </FormField>
-      <FormField label="Autres remarques">
-        <FormTextarea
-          v-model="quote.conditions.otherNotes"
-          :rows="2"
-          placeholder="ex : Tarifs valables sous réserve de disponibilité"
-        />
-      </FormField>
+    <!-- 06. Conditions -->
+    <section class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-stone-100 text-stone-800 border border-stone-200 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            06
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">
+              {{ isInvoice ? 'Clauses & mentions' : 'Conditions du devis' }}
+            </h2>
+            <p class="text-xs text-stone-500">Périmètre inclus, exclusions et remarques complémentaires.</p>
+          </div>
+        </div>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-stone-400 hidden sm:inline">
+          CLAUSES
+        </span>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField label="Prestations incluses (une par ligne)">
+            <FormTextarea
+              :model-value="quote.conditions.included.join('\n')"
+              :rows="3"
+              placeholder="ex :&#10;Design responsive&#10;Intégration CMS&#10;Formation de 2 heures"
+              @update:model-value="quote.conditions.included = splitLines($event)"
+            />
+          </FormField>
+          <FormField label="Prestations non incluses (une par ligne)">
+            <FormTextarea
+              :model-value="quote.conditions.excluded.join('\n')"
+              :rows="3"
+              placeholder="ex :&#10;Hébergement&#10;Nom de domaine&#10;Maintenance mensuelle"
+              @update:model-value="quote.conditions.excluded = splitLines($event)"
+            />
+          </FormField>
+        </div>
+
+        <FormField label="Conditions de maintenance">
+          <FormTextarea
+            v-model="quote.conditions.maintenance"
+            :rows="2"
+            placeholder="ex : Maintenance corrective incluse 3 mois, puis 50 000 Ar/mois"
+          />
+        </FormField>
+        <FormField label="Autres remarques">
+          <FormTextarea
+            v-model="quote.conditions.otherNotes"
+            :rows="2"
+            placeholder="ex : Tarifs valables sous réserve de disponibilité"
+          />
+        </FormField>
+      </div>
     </section>
   </form>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuoteStore } from '~/stores/quote'
-import { ref, watch } from 'vue'
 
 const quoteStore = useQuoteStore()
 const { current: quote } = storeToRefs(quoteStore)

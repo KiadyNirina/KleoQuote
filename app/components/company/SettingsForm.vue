@@ -1,171 +1,245 @@
 <!-- app/components/company/SettingsForm.vue -->
 <template>
   <form class="space-y-6" @submit.prevent>
-    <!-- Identité -->
-    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
-      <h2 class="text-base font-semibold">Identité</h2>
-
-      <FormField label="Nom de l'entreprise" :required="true">
-        <FormInput v-model="company.name" placeholder="ex : Kleonix" />
-      </FormField>
-
-      <FormField label="Logo">
-        <div class="flex items-center gap-4">
-          <div
-            v-if="company.logoDataUrl"
-            class="w-20 h-20 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden"
-          >
-            <img :src="company.logoDataUrl" alt="Logo" class="max-w-full max-h-full object-contain" />
-          </div>
-          <div v-else class="w-20 h-20 rounded-md border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">
-            Aucun
-          </div>
-          <div class="flex flex-col gap-2">
-            <input
-              ref="fileInput"
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml"
-              class="hidden"
-              @change="onLogoChange"
-            />
-            <button
-              type="button"
-              class="px-3 py-2 rounded-md border border-slate-300 text-sm hover:bg-slate-50"
-              @click="fileInput?.click()"
-            >
-              Choisir un fichier
-            </button>
-            <button
-              v-if="company.logoDataUrl"
-              type="button"
-              class="text-xs text-red-600 hover:underline text-left"
-              @click="company.logoDataUrl = undefined"
-            >
-              Supprimer le logo
-            </button>
+    <!-- 01. Identité & visuels -->
+    <section class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-stone-900 text-amber-400 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            01
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">Identité & visuels</h2>
+            <p class="text-xs text-stone-500">Nom commercial, logo d'en-tête et cachet officiel.</p>
           </div>
         </div>
-        <p class="text-xs text-slate-500 mt-1">
-          PNG, JPG ou SVG. L'image est redimensionnée automatiquement (max 400 px).
-        </p>
-      </FormField>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-stone-400 hidden sm:inline">
+          MARQUE
+        </span>
+      </div>
 
-      <FormField label="Cachet de l'entreprise">
-        <div class="flex items-center gap-4">
-          <div
-            v-if="company.stampDataUrl"
-            class="w-20 h-20 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden"
-          >
-            <img :src="company.stampDataUrl" alt="Cachet" class="max-w-full max-h-full object-contain" />
+      <div class="space-y-6">
+        <FormField label="Nom de l'entreprise" :required="true">
+          <FormInput v-model="company.name" placeholder="ex : Kleonix" />
+        </FormField>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Bloc Logo -->
+          <div class="p-4 rounded-xl bg-stone-50/80 border border-stone-200/70 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-700">Logo</span>
+              <span class="font-mono text-[10px] text-stone-400">MAX 400PX</span>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <div
+                v-if="company.logoDataUrl"
+                class="w-20 h-20 rounded-xl border border-stone-200 bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-2xs"
+              >
+                <img :src="company.logoDataUrl" alt="Logo" class="max-w-full max-h-full object-contain p-1" />
+              </div>
+              <div
+                v-else
+                class="w-20 h-20 rounded-xl border border-dashed border-stone-300 bg-white/70 flex items-center justify-center text-[11px] font-medium text-stone-400 shrink-0"
+              >
+                Aucun
+              </div>
+
+              <div class="flex flex-col items-start gap-2 min-w-0">
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  class="hidden"
+                  @change="onLogoChange"
+                />
+                <button
+                  type="button"
+                  class="px-3 py-1.5 rounded-lg border border-stone-300 bg-white text-xs font-semibold text-stone-800 hover:border-stone-900 hover:bg-stone-100 transition-colors cursor-pointer"
+                  @click="fileInput?.click()"
+                >
+                  Choisir un fichier
+                </button>
+                <button
+                  v-if="company.logoDataUrl"
+                  type="button"
+                  class="text-xs font-medium text-red-600 hover:text-red-700 hover:underline underline-offset-2 cursor-pointer"
+                  @click="company.logoDataUrl = undefined"
+                >
+                  Supprimer le logo
+                </button>
+              </div>
+            </div>
+
+            <p class="text-[11px] text-stone-500 leading-relaxed">
+              PNG, JPG ou SVG. Redimensionnement automatique.
+            </p>
           </div>
-          <div v-else class="w-20 h-20 rounded-md border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">
-            Aucun
-          </div>
-          <div class="flex flex-col gap-2">
-            <input
-              ref="stampInput"
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml"
-              class="hidden"
-              @change="onStampChange"
-            />
-            <button
-              type="button"
-              class="px-3 py-2 rounded-md border border-slate-300 text-sm hover:bg-slate-50"
-              @click="stampInput?.click()"
-            >
-              Choisir un fichier
-            </button>
-            <button
-              v-if="company.stampDataUrl"
-              type="button"
-              class="text-xs text-red-600 hover:underline text-left"
-              @click="company.stampDataUrl = undefined"
-            >
-              Supprimer le cachet
-            </button>
+
+          <!-- Bloc Cachet -->
+          <div class="p-4 rounded-xl bg-stone-50/80 border border-stone-200/70 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-700">Cachet de l'entreprise</span>
+              <span class="font-mono text-[10px] text-stone-400">MAX 300PX</span>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <div
+                v-if="company.stampDataUrl"
+                class="w-20 h-20 rounded-xl border border-stone-200 bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-2xs"
+              >
+                <img :src="company.stampDataUrl" alt="Cachet" class="max-w-full max-h-full object-contain p-1" />
+              </div>
+              <div
+                v-else
+                class="w-20 h-20 rounded-xl border border-dashed border-stone-300 bg-white/70 flex items-center justify-center text-[11px] font-medium text-stone-400 shrink-0"
+              >
+                Aucun
+              </div>
+
+              <div class="flex flex-col items-start gap-2 min-w-0">
+                <input
+                  ref="stampInput"
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  class="hidden"
+                  @change="onStampChange"
+                />
+                <button
+                  type="button"
+                  class="px-3 py-1.5 rounded-lg border border-stone-300 bg-white text-xs font-semibold text-stone-800 hover:border-stone-900 hover:bg-stone-100 transition-colors cursor-pointer"
+                  @click="stampInput?.click()"
+                >
+                  Choisir un fichier
+                </button>
+                <button
+                  v-if="company.stampDataUrl"
+                  type="button"
+                  class="text-xs font-medium text-red-600 hover:text-red-700 hover:underline underline-offset-2 cursor-pointer"
+                  @click="company.stampDataUrl = undefined"
+                >
+                  Supprimer le cachet
+                </button>
+              </div>
+            </div>
+
+            <p class="text-[11px] text-stone-500 leading-relaxed">
+              Placé dans le bloc « Bon pour accord » du PDF (zone émetteur).
+            </p>
           </div>
         </div>
-        <p class="text-xs text-slate-500 mt-1">
-          Apparaîtra dans le bloc « Bon pour accord » du PDF, zone émetteur.
-        </p>
-      </FormField>
+      </div>
     </section>
 
-    <!-- Coordonnées -->
-    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
-      <h2 class="text-base font-semibold">Coordonnées</h2>
-      <FormField label="Adresse">
-        <FormTextarea
-          v-model="company.address"
-          :rows="2"
-          placeholder="ex : Lot II M 45 Bis, Antananarivo 101, Madagascar"
-        />
-      </FormField>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Email">
-          <FormInput v-model="company.email" type="email" placeholder="ex : contact@kleonix.mg" />
+    <!-- 02. Coordonnées -->
+    <section class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-stone-100 text-stone-800 border border-stone-200 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            02
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">Coordonnées & devise</h2>
+            <p class="text-xs text-stone-500">Adresse postale, canaux de contact et devise par défaut.</p>
+          </div>
+        </div>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-stone-400 hidden sm:inline">
+          CONTACT
+        </span>
+      </div>
+
+      <div class="space-y-4">
+        <FormField label="Adresse">
+          <FormTextarea
+            v-model="company.address"
+            :rows="2"
+            placeholder="ex : Lot II M 45 Bis, Antananarivo 101, Madagascar"
+          />
         </FormField>
-        <FormField label="Téléphone">
-          <FormInput v-model="company.phone" placeholder="ex : +261 34 00 000 00" />
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField label="Email">
+            <FormInput v-model="company.email" type="email" placeholder="ex : contact@kleonix.mg" />
+          </FormField>
+          <FormField label="Téléphone">
+            <FormInput v-model="company.phone" placeholder="ex : +261 34 00 000 00" />
+          </FormField>
+          <FormField label="Site web">
+            <FormInput v-model="company.website" placeholder="ex : https://kleonix.mg" />
+          </FormField>
+          <FormField label="Devise par défaut">
+            <FormSelect v-model="company.defaultCurrency" :options="currencyOptions" />
+          </FormField>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. Informations administratives -->
+    <section class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-amber-300 text-stone-950 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            03
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">Informations administratives</h2>
+            <p class="text-xs text-stone-500">Identifiants légaux et conditions générales pré-remplies.</p>
+          </div>
+        </div>
+        <span class="font-mono text-[11px] uppercase tracking-wider text-stone-400 hidden sm:inline">
+          LÉGAL
+        </span>
+      </div>
+
+      <div class="space-y-4">
+        <FormField label="Mentions légales (SIRET, TVA intracom, RCS…)">
+          <FormTextarea
+            v-model="company.legalInfo"
+            :rows="3"
+            placeholder="ex : NIF 1234567890 — STAT 98765 11 2024 0 12345"
+          />
         </FormField>
-        <FormField label="Site web">
-          <FormInput v-model="company.website" placeholder="ex : https://kleonix.mg" />
-        </FormField>
-        <FormField label="Devise par défaut">
-          <FormSelect v-model="company.defaultCurrency" :options="currencyOptions" />
+        <FormField label="Conditions générales par défaut">
+          <FormTextarea
+            v-model="company.defaultTerms"
+            :rows="6"
+            placeholder="ex : Devis valable 30 jours. Acompte de 30 % à la commande. Solde à la livraison."
+          />
         </FormField>
       </div>
     </section>
 
-    <!-- Administratif -->
-    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
-      <h2 class="text-base font-semibold">Informations administratives</h2>
-      <FormField label="Mentions légales (SIRET, TVA intracom, RCS…)">
-        <FormTextarea
-          v-model="company.legalInfo"
-          :rows="3"
-          placeholder="ex : NIF 1234567890 — STAT 98765 11 2024 0 12345"
-        />
-      </FormField>
-      <FormField label="Conditions générales par défaut">
-        <FormTextarea
-          v-model="company.defaultTerms"
-          :rows="6"
-          placeholder="ex : Devis valable 30 jours. Acompte de 30 % à la commande. Solde à la livraison."
-        />
-      </FormField>
-    </section>
-
-    <!-- Actions -->
-    <div class="flex items-center justify-between">
+    <!-- Barre d'actions -->
+    <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <button
         type="button"
-        class="px-3 py-2 rounded-md border border-slate-300 text-sm hover:bg-slate-50"
+        class="px-4 py-2.5 rounded-xl border border-stone-300 bg-white text-xs sm:text-sm font-semibold text-stone-700 hover:border-stone-900 hover:text-stone-900 transition-colors self-start cursor-pointer"
         @click="onReset"
       >
         Rétablir les valeurs par défaut
       </button>
-      <div class="flex items-center gap-3">
+
+      <div class="flex items-center justify-end gap-3">
         <Transition
-          enter-active-class="transition duration-200"
+          enter-active-class="transition duration-200 ease-out"
           enter-from-class="opacity-0 translate-y-1"
           enter-to-class="opacity-100 translate-y-0"
-          leave-active-class="transition duration-150"
+          leave-active-class="transition duration-150 ease-in"
           leave-from-class="opacity-100"
           leave-to-class="opacity-0"
         >
           <span
             v-if="toast"
-            class="inline-flex items-center gap-2 text-xs text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm"
+            class="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 shadow-md"
           >
-            <span class="text-emerald-500">✓</span>
-            {{ toast }}
+            <span class="text-amber-400 font-bold">✓</span>
+            <span>{{ toast }}</span>
           </span>
         </Transition>
+
         <button
           type="button"
-          class="px-3 py-2 rounded-md bg-slate-900 text-white text-sm hover:bg-slate-800"
+          class="px-5 py-2.5 rounded-xl bg-stone-900 text-white text-xs sm:text-sm font-semibold shadow-sm hover:bg-stone-800 hover:-translate-y-0.5 transition-all cursor-pointer"
           @click="onSave"
         >
           Enregistrer

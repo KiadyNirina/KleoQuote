@@ -1,71 +1,87 @@
 <!-- app/pages/devis.vue -->
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="min-h-screen bg-[#FAF9F6] text-stone-900 selection:bg-amber-200 selection:text-stone-950 relative">
+    <!-- Grille architecturale subtile en arrière-plan -->
+    <div
+      class="pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,#e7e5e4_1px,transparent_1px),linear-gradient(to_bottom,#e7e5e4_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35"
+      aria-hidden="true"
+    />
 
-      <!-- En-tête -->
-      <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-10">
-        <div class="max-w-xl">
-          <div class="flex items-center gap-2 mb-3">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+
+      <!-- En-tête de l'atelier d'édition -->
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 pb-8 mb-8 border-b border-stone-200/90">
+        <div class="max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2.5 mb-3">
             <span
-              class="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider px-2.5 py-1 rounded-full"
+              class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border"
               :class="isInvoice
-                ? 'bg-amber-100 text-amber-800'
-                : 'bg-slate-900 text-white'"
+                ? 'bg-amber-100/90 text-amber-900 border-amber-300/80'
+                : 'bg-stone-900 text-amber-400 border-stone-900'"
             >
-              <span class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>
-              {{ isInvoice ? 'Facture' : 'Devis' }}
+              <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+              {{ isInvoice ? 'Mode Facture' : 'Mode Devis' }}
             </span>
-            <span v-if="quoteStore.current.number" class="text-xs text-slate-500">
-              {{ quoteStore.current.number }}
+
+            <span
+              v-if="quoteStore.current.number"
+              class="font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-stone-200 text-stone-700"
+            >
+              #{{ quoteStore.current.number }}
+            </span>
+
+            <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-stone-400 font-mono">
+              <span>•</span>
+              <span>SYNCHRO A4</span>
             </span>
           </div>
-          <h1 class="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
-            {{ isInvoice ? 'Nouvelle facture' : 'Nouveau devis' }}
+
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900 mb-2">
+            {{ isInvoice ? 'Rédiger une facture' : 'Rédiger un devis' }}
           </h1>
-          <p class="text-sm text-slate-500 leading-relaxed">
-            Renseignez les informations à gauche — l'aperçu se met à jour instantanément.
+          <p class="text-sm text-stone-600 leading-relaxed">
+            Renseignez les champs dans le formulaire — la feuille A4 à droite reflète chaque modification en direct.
           </p>
         </div>
 
-        <!-- Actions -->
-        <div class="flex flex-col gap-3 w-full lg:w-auto">
-          <!-- Sélecteur de type -->
-          <div class="inline-flex p-1 rounded-xl bg-white border border-slate-200 shadow-sm self-start lg:self-end">
+        <!-- Barre de contrôle & actions -->
+        <div class="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end justify-between gap-3">
+          <!-- Segmented control Devis / Facture -->
+          <div class="inline-flex p-1 rounded-xl bg-stone-200/70 border border-stone-300/70 self-start sm:self-auto lg:self-end">
             <button
               type="button"
-              class="px-4 py-2 text-sm rounded-lg transition-all"
+              class="px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer"
               :class="!isInvoice
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'"
+                ? 'bg-stone-900 text-white shadow-xs'
+                : 'text-stone-600 hover:text-stone-900'"
               @click="askSwitchType('quote')"
             >
               Devis
             </button>
             <button
               type="button"
-              class="px-4 py-2 text-sm rounded-lg transition-all"
+              class="px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer"
               :class="isInvoice
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'"
+                ? 'bg-amber-300 text-stone-950 shadow-xs'
+                : 'text-stone-600 hover:text-stone-900'"
               @click="askSwitchType('invoice')"
             >
               Facture
             </button>
           </div>
 
-          <!-- Barre d'actions -->
-          <div class="flex items-center gap-2 self-start lg:self-end">
+          <!-- Actions document -->
+          <div class="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+              class="px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-xs sm:text-sm font-semibold text-stone-700 hover:border-stone-900 hover:text-stone-900 transition-all cursor-pointer"
               @click="askReset"
             >
               Réinitialiser
             </button>
             <button
               type="button"
-              class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              class="px-4 py-2.5 rounded-xl border border-stone-300 bg-white text-xs sm:text-sm font-semibold text-stone-900 hover:bg-stone-100 hover:border-stone-900 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-stone-300 disabled:hover:bg-white cursor-pointer"
               :disabled="!isValid"
               @click="onSave"
             >
@@ -73,39 +89,57 @@
             </button>
             <button
               type="button"
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 text-white text-xs sm:text-sm font-semibold shadow-sm hover:bg-stone-800 hover:-translate-y-0.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:bg-stone-900 cursor-pointer"
               :disabled="!isValid"
               @click="onExport"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              PDF
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Exporter PDF</span>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Bandeau d'aide si invalide -->
+      <!-- Bandeau de prérequis si incomplet -->
       <Transition
         enter-active-class="transition duration-200 ease-out"
         enter-from-class="opacity-0 -translate-y-1"
         enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 -translate-y-1"
       >
         <div
           v-if="!isValid"
-          class="mb-6 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500 flex items-center gap-2"
+          class="mb-7 rounded-xl border-l-4 border-amber-500 bg-amber-50/90 border border-amber-200/80 px-4 py-3 text-xs sm:text-sm text-stone-700 flex items-center gap-3 shadow-2xs"
         >
-          <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-          Complétez le numéro, le client, l'objet et au moins une prestation pour activer l'enregistrement et l'export.
+          <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+          <span>
+            Renseignez le <strong class="font-semibold text-stone-900">numéro</strong>, le <strong class="font-semibold text-stone-900">client</strong> (société, contact, email), l'<strong class="font-semibold text-stone-900">objet</strong> et au moins <strong class="font-semibold text-stone-900">une prestation</strong> pour débloquer l'enregistrement et l'export PDF.
+          </span>
         </div>
       </Transition>
 
-      <!-- Contenu 2 colonnes -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <div>
+      <!-- Espace de travail 2 colonnes : Formulaire & Aperçu A4 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-6">
           <QuoteForm />
         </div>
-        <div class="lg:sticky lg:top-24">
-          <QuotePreview :quote="quoteStore.current" :company="companyStore.settings" />
+
+        <div class="lg:col-span-6 lg:sticky lg:top-24">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-[11px] font-bold uppercase tracking-widest text-stone-400 font-mono">
+              Aperçu du document
+            </span>
+            <span class="text-[11px] font-mono text-stone-400">
+              FORMAT A4
+            </span>
+          </div>
+          <div class="rounded-2xl ring-1 ring-stone-200/90 shadow-lg bg-white overflow-hidden">
+            <QuotePreview :quote="quoteStore.current" :company="companyStore.settings" />
+          </div>
         </div>
       </div>
     </div>
@@ -135,10 +169,12 @@
           <div
             v-for="t in localToasts"
             :key="t.id"
-            class="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-sm shadow-lg pointer-events-auto"
+            class="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-stone-900 text-white text-xs sm:text-sm font-medium shadow-xl border border-stone-800 pointer-events-auto"
           >
-            <span class="text-emerald-400">✓</span>
-            {{ t.message }}
+            <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center text-xs font-bold">
+              ✓
+            </span>
+            <span>{{ t.message }}</span>
           </div>
         </TransitionGroup>
       </div>

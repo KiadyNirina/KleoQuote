@@ -122,6 +122,59 @@
         </div>
       </Transition>
 
+      <!-- Indication de configuration entreprise -->
+      <div
+        v-if="!isCompanyConfigured"
+        class="mb-6 rounded-2xl border border-amber-300/80 bg-amber-50/90 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs"
+      >
+        <div class="flex items-start gap-3.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-amber-200/80 border border-amber-300 text-amber-950 font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+            !
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-0.5">
+              <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-amber-800">
+                Profil émetteur incomplet
+              </span>
+            </div>
+            <p class="text-sm font-bold text-stone-900">
+              Configurez les informations de votre entreprise
+            </p>
+            <p class="text-xs text-stone-600 mt-0.5 leading-relaxed">
+              Ajoutez votre nom, logo, cachet et mentions légales dans les paramètres pour qu'ils apparaissent automatiquement sur vos PDF.
+            </p>
+          </div>
+        </div>
+
+        <NuxtLink
+          to="/settings"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 text-white text-xs font-semibold hover:bg-stone-800 transition-colors shrink-0 self-start sm:self-center"
+        >
+          <span>Configurer</span>
+          <span class="text-amber-400">→</span>
+        </NuxtLink>
+      </div>
+
+      <div
+        v-else
+        class="mb-6 rounded-2xl border border-stone-200/90 bg-white px-4 py-3 flex items-center justify-between gap-3 shadow-2xs"
+      >
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+          <p class="text-xs text-stone-600 truncate">
+            <span class="font-mono uppercase tracking-wider text-stone-400 mr-1.5">Émetteur :</span>
+            <span class="font-semibold text-stone-900">{{ companySummary }}</span>
+          </p>
+        </div>
+
+        <NuxtLink
+          to="/settings"
+          class="text-xs font-semibold text-stone-700 hover:text-stone-900 hover:underline underline-offset-4 shrink-0"
+        >
+          Modifier dans les paramètres →
+        </NuxtLink>
+      </div>
+
       <!-- Espace de travail 2 colonnes : Formulaire & Aperçu A4 -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div class="lg:col-span-6">
@@ -202,6 +255,17 @@ const companyStore = useCompanyStore()
 const historyStore = useHistoryStore()
 const { computeQuoteTotals } = useQuoteCalculations()
 const { exportQuote } = usePdfExport()
+
+const isCompanyConfigured = computed(() => {
+  const s = companyStore.settings
+  return Boolean(s.name?.trim() && (s.address?.trim() || s.email?.trim() || s.phone?.trim()))
+})
+
+const companySummary = computed(() => {
+  const s = companyStore.settings
+  const details = [s.email, s.phone].filter(Boolean).join(' • ')
+  return details ? `${s.name} (${details})` : s.name
+})
 
 const localToasts = ref<{ id: number; message: string }[]>([])
 let toastCounter = 0

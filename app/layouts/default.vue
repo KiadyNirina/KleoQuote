@@ -7,11 +7,15 @@
         <!-- Logo -->
         <NuxtLink to="/" class="group flex items-center gap-2.5 shrink-0">
           <span
-            class="w-8 h-8 rounded-lg bg-stone-900 text-amber-400 flex items-center justify-center font-bold text-sm shadow-sm transition-transform duration-200 group-hover:-rotate-3"
+            class="w-8 h-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center overflow-hidden shadow-sm transition-transform duration-200 group-hover:-rotate-3"
           >
-            K.
+            <img
+              src="/favicon.ico"
+              alt="KleoQuote"
+              class="w-5 h-5 object-contain"
+            />
           </span>
-          <span class="font-bold tracking-tight text-lg text-stone-900">
+          <span class="hidden sm:inline font-bold tracking-tight text-lg text-stone-900">
             KleoQuote
           </span>
         </NuxtLink>

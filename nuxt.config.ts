@@ -11,6 +11,20 @@ export default defineNuxtConfig({
     'nuxt-pdfmake',
   ],
 
+  pdfmake: {
+    fonts: {
+      custom: {
+        Poppins: {
+          normal: 'assets/fonts/KumbhSans-VariableFont_YOPQ,wght.ttf',
+          bold: 'assets/fonts/KumbhSans-VariableFont_YOPQ,wght.ttf',
+          italics: 'assets/fonts/KumbhSans-VariableFont_YOPQ,wght.ttf',
+          bolditalics: 'assets/fonts/KumbhSans-VariableFont_YOPQ,wght.ttf',
+        },
+      },
+      useDefaultRoboto: false 
+    }
+  },
+
   shadcn: {
     prefix: '',
     componentDir: '@/components/ui'

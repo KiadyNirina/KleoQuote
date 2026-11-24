@@ -533,7 +533,7 @@ export function usePdfExport() {
             : []),
       ],
       styles: {},
-      defaultStyle: { font: 'Roboto', lineHeight: 1.35 },
+      defaultStyle: { font: 'Poppins', lineHeight: 1.35 },
     }
   }
 

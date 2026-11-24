@@ -20,77 +20,261 @@ export function usePdfExport() {
     return text.replace(/[\u00A0\u202F\u2009]/g, ' ')
   }
 
+  function divider(margin: [number, number, number, number] = [0, 12, 0, 12]) {
+    return {
+      canvas: [
+        {
+          type: 'line',
+          x1: 0,
+          y1: 0,
+          x2: 515,
+          y2: 0,
+          lineWidth: 0.75,
+          lineColor: '#e2e8f0',
+        },
+      ],
+      margin,
+    }
+  }
+
+  function sectionLabel(label: string, marginBottom = 4) {
+    return {
+      text: label.toUpperCase(),
+      fontSize: 8.5,
+      bold: true,
+      color: '#64748b',
+      characterSpacing: 0.5,
+      margin: [0, 0, 0, marginBottom] as [number, number, number, number],
+    }
+  }
+
   function buildDocDefinition(quote: Quote, company: CompanySettings): TDocumentDefinitions {
     const totals = computeQuoteTotals(quote)
 
-    // Lignes du tableau des prestations
+    // Lignes du tableau des prestations (titre + description éventuelle)
     const itemsBody = quote.items.length
-      ? quote.items.map((item: LineItem) => [
-          { text: cleanText(item.name || '—'), fontSize: 10 },
-          { text: String(item.quantity), fontSize: 10, alignment: 'right' as const },
-          { text: cleanText(formatMoney(item.unitPrice, quote.currency)), fontSize: 10, alignment: 'right' as const },
-          { text: cleanText(formatMoney(computeLineTotal(item), quote.currency)), fontSize: 10, alignment: 'right' as const },
-        ])
-      : [[{ text: 'Aucune prestation', colSpan: 4, alignment: 'center' as const, italics: true, color: '#999', fontSize: 10 }, {}, {}, {}]]
+      ? quote.items.map((item: LineItem) => {
+          const nameStack: any[] = [
+            { text: cleanText(item.name || '—'), fontSize: 9.5, bold: true, color: '#0f172a' },
+          ]
+          if (item.description) {
+            nameStack.push({
+              text: cleanText(item.description),
+              fontSize: 8.5,
+              color: '#64748b',
+              margin: [0, 1.5, 0, 0] as [number, number, number, number],
+            })
+          }
 
-    // Récapitulatif financier
-    const totalsLines: any[] = [
-      { text: cleanText(`Sous-total : ${formatMoney(totals.subtotal, quote.currency)}`), alignment: 'right' as const, fontSize: 10, margin: [0, 2, 0, 0] },
+          return [
+            { stack: nameStack, border: [false, false, false, true], borderColor: ['', '', '', '#f1f5f9'], margin: [0, 4, 4, 4] },
+            {
+              text: String(item.quantity),
+              fontSize: 9,
+              color: '#334155',
+              alignment: 'right' as const,
+              border: [false, false, false, true],
+              borderColor: ['', '', '', '#f1f5f9'],
+              margin: [2, 4, 2, 4],
+            },
+            {
+              text: cleanText(formatMoney(item.unitPrice, quote.currency)),
+              fontSize: 9,
+              color: '#334155',
+              alignment: 'right' as const,
+              border: [false, false, false, true],
+              borderColor: ['', '', '', '#f1f5f9'],
+              margin: [2, 4, 2, 4],
+            },
+            {
+              text: cleanText(formatMoney(computeLineTotal(item), quote.currency)),
+              fontSize: 9,
+              bold: true,
+              color: '#0f172a',
+              alignment: 'right' as const,
+              border: [false, false, false, true],
+              borderColor: ['', '', '', '#f1f5f9'],
+              margin: [4, 4, 0, 4],
+            },
+          ]
+        })
+      : [
+          [
+            {
+              text: 'Aucune prestation',
+              colSpan: 4,
+              alignment: 'center' as const,
+              italics: true,
+              color: '#94a3b8',
+              fontSize: 9,
+              margin: [0, 8, 0, 8],
+            },
+            {},
+            {},
+            {},
+          ],
+        ]
+
+    // Récapitulatif financier (2 colonnes alignées à droite comme dans Preview.vue)
+    const summaryRows: any[][] = [
+      [
+        { text: 'Sous-total', fontSize: 9, color: '#475569', lineHeight: 1.15, margin: [0, 0.5, 8, 0.5] },
+        { text: cleanText(formatMoney(totals.subtotal, quote.currency)), fontSize: 9, color: '#0f172a', alignment: 'right' as const, lineHeight: 1.15, margin: [0, 0.5, 0, 0.5] },
+      ],
     ]
+
     if (totals.discount > 0) {
-      totalsLines.push({ text: cleanText(`Remise : − ${formatMoney(totals.discount, quote.currency)}`), alignment: 'right' as const, fontSize: 10 })
+      summaryRows.push([
+        { text: 'Remise', fontSize: 9, color: '#475569', lineHeight: 1.15, margin: [0, 0.5, 8, 0.5] },
+        { text: cleanText(`− ${formatMoney(totals.discount, quote.currency)}`), fontSize: 9, color: '#475569', alignment: 'right' as const, lineHeight: 1.15, margin: [0, 0.5, 0, 0.5] },
+      ])
     }
+
     for (const tax of quote.taxes) {
-      const taxAmount = (totals.subtotal - totals.discount) * tax.rate / 100
-      totalsLines.push({ text: cleanText(`${tax.label || 'Taxe'} (${tax.rate}%) : ${formatMoney(taxAmount, quote.currency)}`), alignment: 'right' as const, fontSize: 10 })
+      const taxAmount = ((totals.subtotal - totals.discount) * tax.rate) / 100
+      summaryRows.push([
+        { text: cleanText(`${tax.label || 'Taxe'} (${tax.rate}%)`), fontSize: 9, color: '#475569', lineHeight: 1.15, margin: [0, 0.5, 8, 0.5] },
+        { text: cleanText(formatMoney(taxAmount, quote.currency)), fontSize: 9, color: '#475569', alignment: 'right' as const, lineHeight: 1.15, margin: [0, 0.5, 0, 0.5] },
+      ])
     }
-    totalsLines.push({ text: cleanText(`TOTAL : ${formatMoney(totals.total, quote.currency)}`), alignment: 'right' as const, bold: true, fontSize: 12.5, margin: [0, 4, 0, 0] })
+
+    summaryRows.push([
+      {
+        text: 'Total',
+        fontSize: 10.5,
+        bold: true,
+        color: '#0f172a',
+        lineHeight: 1.2,
+        border: [false, true, false, false],
+        borderColor: ['', '#e2e8f0', '', ''],
+        margin: [0, 3, 8, 1],
+      },
+      {
+        text: cleanText(formatMoney(totals.total, quote.currency)),
+        fontSize: 10.5,
+        bold: true,
+        color: '#0f172a',
+        alignment: 'right' as const,
+        lineHeight: 1.2,
+        border: [false, true, false, false],
+        borderColor: ['', '#e2e8f0', '', ''],
+        margin: [0, 3, 0, 1],
+      },
+    ])
+
     if (totals.depositAmount > 0) {
-      totalsLines.push({ text: cleanText(`Acompte : ${formatMoney(totals.depositAmount, quote.currency)}`), alignment: 'right' as const, fontSize: 10 })
-      totalsLines.push({ text: cleanText(`Reste à payer : ${formatMoney(totals.remaining, quote.currency)}`), alignment: 'right' as const, bold: true, fontSize: 11 })
+      summaryRows.push([
+        { text: 'Acompte', fontSize: 9, color: '#475569', lineHeight: 1.15, margin: [0, 0.5, 8, 0.5] },
+        { text: cleanText(formatMoney(totals.depositAmount, quote.currency)), fontSize: 9, color: '#475569', alignment: 'right' as const, lineHeight: 1.15, margin: [0, 0.5, 0, 0.5] },
+      ])
+      summaryRows.push([
+        { text: 'Reste à payer', fontSize: 9.5, bold: true, color: '#0f172a', lineHeight: 1.15, margin: [0, 0.5, 8, 0.5] },
+        { text: cleanText(formatMoney(totals.remaining, quote.currency)), fontSize: 9.5, bold: true, color: '#0f172a', alignment: 'right' as const, lineHeight: 1.15, margin: [0, 0.5, 0, 0.5] },
+      ])
     }
 
     // Conditions
-    const conditionsParts: any[] = []
+    const conditionsBlocks: any[] = []
     if (quote.deliveryDelay) {
-      conditionsParts.push({ text: cleanText(`Délai de réalisation : ${quote.deliveryDelay}`), fontSize: 9, margin: [0, 2, 0, 0] })
+      conditionsBlocks.push({
+        stack: [
+          sectionLabel('Délai de réalisation', 2),
+          { text: cleanText(quote.deliveryDelay), fontSize: 9, color: '#334155' },
+        ],
+        margin: [0, 0, 0, 8] as [number, number, number, number],
+      })
     }
     if (quote.paymentTerms && quote.type !== 'invoice') {
-      conditionsParts.push({ text: cleanText(`Modalités de paiement : ${quote.paymentTerms}`), fontSize: 9, margin: [0, 2, 0, 0] })
+      conditionsBlocks.push({
+        stack: [
+          sectionLabel('Modalités de paiement', 2),
+          { text: cleanText(quote.paymentTerms), fontSize: 9, color: '#334155' },
+        ],
+        margin: [0, 0, 0, 8] as [number, number, number, number],
+      })
     }
     if (quote.type !== 'invoice' && quote.conditions.included.length) {
-      conditionsParts.push({ text: 'Inclus :', fontSize: 9, bold: true, margin: [0, 4, 0, 1] })
-      conditionsParts.push({ ul: [...quote.conditions.included], fontSize: 9 })
+      conditionsBlocks.push({
+        stack: [
+          sectionLabel('Inclus', 2),
+          { ul: quote.conditions.included.map((line) => cleanText(line)), fontSize: 9, color: '#334155' },
+        ],
+        margin: [0, 0, 0, 8] as [number, number, number, number],
+      })
     }
     if (quote.type !== 'invoice' && quote.conditions.excluded.length) {
-      conditionsParts.push({ text: 'Non inclus :', fontSize: 9, bold: true, margin: [0, 4, 0, 1] })
-      conditionsParts.push({ ul: [...quote.conditions.excluded], fontSize: 9 })
+      conditionsBlocks.push({
+        stack: [
+          sectionLabel('Non inclus', 2),
+          { ul: quote.conditions.excluded.map((line) => cleanText(line)), fontSize: 9, color: '#334155' },
+        ],
+        margin: [0, 0, 0, 8] as [number, number, number, number],
+      })
     }
     if (quote.type !== 'invoice' && quote.conditions.maintenance) {
-      conditionsParts.push({ text: cleanText(`Maintenance : ${quote.conditions.maintenance}`), fontSize: 9, margin: [0, 4, 0, 0] })
+      conditionsBlocks.push({
+        stack: [
+          sectionLabel('Maintenance', 2),
+          { text: cleanText(quote.conditions.maintenance), fontSize: 9, color: '#334155' },
+        ],
+        margin: [0, 0, 0, 8] as [number, number, number, number],
+      })
     }
     if (quote.conditions.otherNotes) {
-      conditionsParts.push({ text: cleanText(`Remarques : ${quote.conditions.otherNotes}`), fontSize: 9, margin: [0, 4, 0, 0] })
+      conditionsBlocks.push({
+        stack: [
+          sectionLabel('Remarques', 2),
+          { text: cleanText(quote.conditions.otherNotes), fontSize: 9, color: '#334155' },
+        ],
+        margin: [0, 0, 0, 4] as [number, number, number, number],
+      })
     }
+
+    const companyMeta: any[] = []
+    if (company.address) companyMeta.push({ text: cleanText(company.address), fontSize: 8.5, color: '#475569' })
+    if (company.email) companyMeta.push({ text: cleanText(company.email), fontSize: 8.5, color: '#475569' })
+    if (company.phone) companyMeta.push({ text: cleanText(company.phone), fontSize: 8.5, color: '#475569' })
+    if (company.website) companyMeta.push({ text: cleanText(company.website), fontSize: 8.5, color: '#475569' })
+
+    const clientMeta: any[] = []
+    if (quote.client.contactName) clientMeta.push({ text: cleanText(quote.client.contactName), fontSize: 8.5, color: '#475569' })
+    if (quote.client.address) clientMeta.push({ text: cleanText(quote.client.address), fontSize: 8.5, color: '#475569' })
+    if (quote.client.email) clientMeta.push({ text: cleanText(quote.client.email), fontSize: 8.5, color: '#475569' })
+    if (quote.client.phone) clientMeta.push({ text: cleanText(quote.client.phone), fontSize: 8.5, color: '#475569' })
 
     return {
       pageSize: 'A4',
-      pageMargins: [40, 50, 40, 50] as [number, number, number, number],
+      pageMargins: [40, 44, 40, 44] as [number, number, number, number],
       content: [
-        // En-tête : logo + coordonnées / numéro de devis
+        // En-tête entreprise / document
         {
           columns: [
             {
               width: '*',
               stack: [
-                ...(company.logoDataUrl
-                  ? [{ image: company.logoDataUrl, width: 50, margin: [0, 0, 0, 4] as [number, number, number, number] }]
-                  : []),
-                { text: cleanText(company.name || 'Kleonix'), fontSize: 18, bold: true },
-                { text: cleanText(company.address || ''), fontSize: 9, color: '#555' },
-                { text: cleanText(company.email || ''), fontSize: 9, color: '#555' },
-                { text: cleanText(company.phone || ''), fontSize: 9, color: '#555' },
-                { text: cleanText(company.website || ''), fontSize: 9, color: '#555' },
+                {
+                  columns: [
+                    ...(company.logoDataUrl
+                      ? [
+                          {
+                            image: company.logoDataUrl,
+                            width: 36,
+                            margin: [0, 0, 8, 0] as [number, number, number, number],
+                          },
+                        ]
+                      : []),
+                    {
+                      width: '*',
+                      text: cleanText(company.name || 'Kleonix'),
+                      fontSize: 13,
+                      bold: true,
+                      color: '#0f172a',
+                      margin: [0, company.logoDataUrl ? 6 : 0, 0, 0] as [number, number, number, number],
+                    },
+                  ],
+                  margin: [0, 0, 0, 6] as [number, number, number, number],
+                },
+                ...companyMeta,
               ],
             },
             {
@@ -99,153 +283,257 @@ export function usePdfExport() {
               stack: [
                 {
                   text: quote.type === 'invoice' ? 'FACTURE' : 'DEVIS',
-                  fontSize: 11,
-                  color: '#888',
+                  fontSize: 8.5,
+                  bold: true,
+                  color: '#64748b',
+                  characterSpacing: 0.5,
                 },
-                { text: cleanText(quote.number || '—'), fontSize: 15, bold: true },
+                {
+                  text: cleanText(quote.number || '—'),
+                  fontSize: 11.5,
+                  bold: true,
+                  color: '#0f172a',
+                  margin: [0, 2, 0, 4] as [number, number, number, number],
+                },
                 {
                   text: cleanText(`Émis le ${formatDate(quote.createdAt)}`),
-                  fontSize: 9,
-                  color: '#555',
-                  margin: [0, 4, 0, 0] as [number, number, number, number],
+                  fontSize: 8.5,
+                  color: '#475569',
                 },
-                ...(quote.type === 'invoice'
-                  ? [
-                      {
-                        text: cleanText(`Échéance : ${formatDate(quote.dueDate || '')}`),
-                        fontSize: 9,
-                        color: '#555',
-                      },
-                    ]
-                  : [
-                      {
-                        text: cleanText(`Valide jusqu'au ${formatDate(quote.validUntil)}`),
-                        fontSize: 9,
-                        color: '#555',
-                      },
-                    ]),
+                {
+                  text:
+                    quote.type === 'invoice'
+                      ? cleanText(`Échéance : ${formatDate(quote.dueDate || '')}`)
+                      : cleanText(`Valide jusqu'au ${formatDate(quote.validUntil)}`),
+                  fontSize: 8.5,
+                  color: '#475569',
+                  margin: [0, 1, 0, 0] as [number, number, number, number],
+                },
               ],
             },
           ],
-          margin: [0, 0, 0, 20] as [number, number, number, number],
+          columnGap: 16,
         },
+
+        divider([0, 14, 0, 14]),
 
         // Client
         {
           stack: [
-            { text: 'CLIENT', fontSize: 9, color: '#888', margin: [0, 0, 0, 2] as [number, number, number, number] },
-            { text: cleanText(quote.client.company || '—'), fontSize: 11, bold: true },
-            { text: cleanText(quote.client.contactName || ''), fontSize: 9, color: '#555' },
-            { text: cleanText(quote.client.address || ''), fontSize: 9, color: '#555' },
-            { text: cleanText(quote.client.email || ''), fontSize: 9, color: '#555' },
-            { text: cleanText(quote.client.phone || ''), fontSize: 9, color: '#555' },
+            sectionLabel('Client', 3),
+            { text: cleanText(quote.client.company || '—'), fontSize: 10, bold: true, color: '#0f172a', margin: [0, 0, 0, 2] as [number, number, number, number] },
+            ...clientMeta,
           ],
-          margin: [0, 0, 0, 16] as [number, number, number, number],
+          margin: [0, 0, 0, 14] as [number, number, number, number],
         },
 
         // Objet
-        ...(quote.title
-          ? [
-              { text: 'OBJET', fontSize: 9, color: '#888', margin: [0, 0, 0, 2] as [number, number, number, number] },
-              { text: cleanText(quote.title), fontSize: 11, bold: true },
-              ...(quote.description
-                ? [{ text: cleanText(quote.description), fontSize: 9, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] }]
-                : []),
-              { text: '', margin: [0, 0, 0, 12] as [number, number, number, number] },
-            ]
-          : []),
-
-        // Tableau des prestations
-        {
-          table: {
-            headerRows: 1,
-            widths: ['*', 45, 78, 88],
-            body: [
-              [
-                { text: 'Prestation', fontSize: 10, bold: true },
-                { text: 'Qté', fontSize: 10, bold: true, alignment: 'right' as const },
-                { text: 'PU', fontSize: 10, bold: true, alignment: 'right' as const },
-                { text: 'Total', fontSize: 10, bold: true, alignment: 'right' as const },
-              ],
-              ...itemsBody,
-            ],
-          },
-          layout: 'lightHorizontalLines',
-          margin: [0, 0, 0, 16] as [number, number, number, number],
-        },
-
-        // Récapitulatif financier
-        { stack: totalsLines, margin: [0, 0, 0, 16] as [number, number, number, number] },
-
-        // Conditions
-        ...(conditionsParts.length
-          ? [
-              { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: '#ddd' }] },
-              { text: 'CONDITIONS', fontSize: 9, color: '#888', margin: [0, 8, 0, 4] as [number, number, number, number] },
-              ...conditionsParts,
-            ]
-          : []),
-
-        // Signature (devis uniquement)
-        ...(quote.type === 'quote' && quote.signature?.show !== false
+        ...(quote.title || quote.description
           ? [
               {
-                margin: [0, 30, 0, 0] as [number, number, number, number],
                 stack: [
-                  { text: 'Bon pour accord', fontSize: 10, bold: true, margin: [0, 0, 0, 8] as [number, number, number, number] },
-                  {
-                    columns: [
-                      {
-                        width: '*',
-                        stack: [
-                          { text: cleanText(company.name || 'Kleonix'), fontSize: 10, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
-                          {
-                            text: quote.signature?.issuerSignedAt
-                              ? cleanText(`Date : ${formatDate(quote.signature.issuerSignedAt)}`)
-                              : 'Date : ',
-                            fontSize: 9, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number]
-                          },
-                          ...(company.stampDataUrl
-                            ? [{ image: company.stampDataUrl, width: 70, margin: [0, 8, 0, 0] as [number, number, number, number] }]
-                            : []
-                          ),
-                        ],
-                      },
-                      {
-                        width: '*',
-                        stack: [
-                          {
-                            text: cleanText(quote.signature?.signerName || quote.client.company || 'Client'),
-                            fontSize: 10, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number]
-                          },
-                          {
-                            text: quote.signature?.signedAt
-                              ? cleanText(`Date : ${formatDate(quote.signature.signedAt)}`)
-                              : 'Date : ',
-                            fontSize: 9, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number]
-                          },
-                          ...(quote.signature?.location
-                            ? [{ text: cleanText(`Lieu : ${quote.signature.location}`), fontSize: 9, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] }]
-                            : []
-                          ),
-                          ...(quote.signature?.clientSignatureDataUrl
-                            ? [{ image: quote.signature.clientSignatureDataUrl, width: 100, margin: [0, 4, 0, 0] as [number, number, number, number] }]
-                            : quote.signature?.clientStampDataUrl
-                              ? [{ image: quote.signature.clientStampDataUrl, width: 70, margin: [0, 8, 0, 0] as [number, number, number, number] }]
-                              : []
-                          ),
-                        ],
-                      },
-                    ],
-                    columnGap: 20,
-                  },
+                  sectionLabel('Objet', 3),
+                  { text: cleanText(quote.title || '—'), fontSize: 10, bold: true, color: '#0f172a' },
+                  ...(quote.description
+                    ? [
+                        {
+                          text: cleanText(quote.description),
+                          fontSize: 8.5,
+                          color: '#475569',
+                          margin: [0, 3, 0, 0] as [number, number, number, number],
+                        },
+                      ]
+                    : []),
                 ],
+                margin: [0, 0, 0, 14] as [number, number, number, number],
               },
             ]
           : []),
+
+        // Prestations
+        {
+          stack: [
+            sectionLabel('Prestations', 6),
+            {
+              table: {
+                headerRows: 1,
+                widths: ['*', 40, 74, 78],
+                body: [
+                  [
+                    {
+                      text: 'Prestation',
+                      fontSize: 8.5,
+                      bold: true,
+                      color: '#64748b',
+                      border: [false, false, false, true],
+                      borderColor: ['', '', '', '#e2e8f0'],
+                      margin: [0, 2, 4, 4],
+                    },
+                    {
+                      text: 'Qté',
+                      fontSize: 8.5,
+                      bold: true,
+                      color: '#64748b',
+                      alignment: 'right' as const,
+                      border: [false, false, false, true],
+                      borderColor: ['', '', '', '#e2e8f0'],
+                      margin: [2, 2, 2, 4],
+                    },
+                    {
+                      text: 'PU',
+                      fontSize: 8.5,
+                      bold: true,
+                      color: '#64748b',
+                      alignment: 'right' as const,
+                      border: [false, false, false, true],
+                      borderColor: ['', '', '', '#e2e8f0'],
+                      margin: [2, 2, 2, 4],
+                    },
+                    {
+                      text: 'Total',
+                      fontSize: 8.5,
+                      bold: true,
+                      color: '#64748b',
+                      alignment: 'right' as const,
+                      border: [false, false, false, true],
+                      borderColor: ['', '', '', '#e2e8f0'],
+                      margin: [4, 2, 0, 4],
+                    },
+                  ],
+                  ...itemsBody,
+                ],
+              },
+            },
+          ],
+          margin: [0, 0, 0, 14] as [number, number, number, number],
+        },
+
+        // Récapitulatif financier
+        {
+          columns: [
+            { width: '*', text: '' },
+            {
+              width: 220,
+              table: {
+                widths: ['*', 'auto'],
+                body: summaryRows,
+              },
+              layout: 'noBorders',
+            },
+          ],
+          margin: [0, 0, 0, 14] as [number, number, number, number],
+        },
+
+        // Conditions
+        ...(conditionsBlocks.length
+          ? [
+              divider([0, 2, 0, 12]),
+              ...conditionsBlocks,
+            ]
+          : []),
+
+        // Bloc final : modalités (facture) ou signature (devis)
+        ...(quote.type === 'invoice'
+          ? [
+              divider([0, 10, 0, 12]),
+              sectionLabel('Modalités de paiement', 4),
+              {
+                text: cleanText(quote.paymentTerms || 'À réception de facture'),
+                fontSize: 9,
+                color: '#334155',
+              },
+            ]
+          : quote.signature?.show !== false
+            ? [
+                divider([0, 10, 0, 12]),
+                sectionLabel('Bon pour accord', 8),
+                {
+                  columns: [
+                    {
+                      width: '*',
+                      stack: [
+                        { text: cleanText(company.name || 'Kleonix'), fontSize: 9, bold: true, color: '#334155', margin: [0, 0, 0, 6] as [number, number, number, number] },
+                        {
+                          text: quote.signature?.issuerSignedAt
+                            ? cleanText(`Date : ${formatDate(quote.signature.issuerSignedAt)}`)
+                            : 'Date : ',
+                          fontSize: 8.5,
+                          color: '#475569',
+                        },
+                        ...(quote.signature?.issuerSignatureDataUrl
+                          ? [
+                              {
+                                image: quote.signature.issuerSignatureDataUrl,
+                                fit: [120, 36] as [number, number],
+                                margin: [0, 8, 0, 0] as [number, number, number, number],
+                              },
+                            ]
+                          : []),
+                        ...(company.stampDataUrl
+                          ? [
+                              {
+                                image: company.stampDataUrl,
+                                fit: [90, 60] as [number, number],
+                                margin: [0, 8, 0, 0] as [number, number, number, number],
+                              },
+                            ]
+                          : []),
+                      ],
+                    },
+                    {
+                      width: '*',
+                      stack: [
+                        {
+                          text: cleanText(quote.signature?.signerName || quote.client.company || 'Client'),
+                          fontSize: 9,
+                          bold: true,
+                          color: '#334155',
+                          margin: [0, 0, 0, 6] as [number, number, number, number],
+                        },
+                        {
+                          text: quote.signature?.signedAt
+                            ? cleanText(`Date : ${formatDate(quote.signature.signedAt)}`)
+                            : 'Date : ',
+                          fontSize: 8.5,
+                          color: '#475569',
+                        },
+                        ...(quote.signature?.location
+                          ? [
+                              {
+                                text: cleanText(`Lieu : ${quote.signature.location}`),
+                                fontSize: 8.5,
+                                color: '#475569',
+                                margin: [0, 6, 0, 0] as [number, number, number, number],
+                              },
+                            ]
+                          : []),
+                        ...(quote.signature?.clientSignatureDataUrl
+                          ? [
+                              {
+                                image: quote.signature.clientSignatureDataUrl,
+                                fit: [120, 36] as [number, number],
+                                margin: [0, 8, 0, 0] as [number, number, number, number],
+                              },
+                            ]
+                          : quote.signature?.clientStampDataUrl
+                            ? [
+                                {
+                                  image: quote.signature.clientStampDataUrl,
+                                  fit: [90, 60] as [number, number],
+                                  margin: [0, 8, 0, 0] as [number, number, number, number],
+                                },
+                              ]
+                            : []),
+                      ],
+                    },
+                  ],
+                  columnGap: 24,
+                },
+              ]
+            : []),
       ],
       styles: {},
-      defaultStyle: { font: 'Roboto', lineHeight: 1.5 },
+      defaultStyle: { font: 'Roboto', lineHeight: 1.35 },
     }
   }
 

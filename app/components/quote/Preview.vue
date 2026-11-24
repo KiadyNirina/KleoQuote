@@ -190,23 +190,50 @@
             {{ quote.paymentTerms || 'À réception de facture' }}
           </div>
         </template>
-        <template v-else>
+        <!-- Signature (devis uniquement) -->
+        <template v-if="quote.type === 'quote' && quote.signature?.show !== false">
           <div class="text-xs uppercase tracking-wide text-slate-500 mb-3">Bon pour accord</div>
           <div class="grid grid-cols-2 gap-6 text-xs text-slate-600">
+            <!-- Émetteur -->
             <div class="space-y-3">
               <div class="font-medium text-slate-700">{{ company.name || 'Kleonix' }}</div>
-              <div>Date : ____________________</div>
-              <div>Signature : ____________________</div>
+              <div>
+                Date : {{ quote.signature?.issuerSignedAt ? formatDate(quote.signature.issuerSignedAt) : '' }}
+              </div>
+              <div v-if="quote.signature?.issuerSignatureDataUrl" class="h-12 flex items-end">
+                <img :src="quote.signature.issuerSignatureDataUrl" alt="Signature émetteur" class="max-h-12 object-contain" />
+              </div>
               <div v-if="company.stampDataUrl" class="pt-2">
                 <img :src="company.stampDataUrl" alt="Cachet" class="max-h-20 object-contain" />
               </div>
             </div>
+
+            <!-- Client -->
             <div class="space-y-3">
-              <div class="font-medium text-slate-700">{{ quote.client.company || 'Client' }}</div>
-              <div>Date : ____________________</div>
-              <div>Signature : ____________________</div>
-              <div>Nom : ____________________</div>
-              <div>Cachet : ____________________</div>
+              <div class="font-medium text-slate-700">
+                {{ quote.signature?.signerName || quote.client.company || 'Client' }}
+              </div>
+              <div>
+                Date : {{ quote.signature?.signedAt ? formatDate(quote.signature.signedAt) : '' }}
+              </div>
+              <div v-if="quote.signature?.location">
+                Lieu : {{ quote.signature.location }}
+              </div>
+
+              <div v-if="quote.signature?.clientSignatureDataUrl" class="h-12 flex items-end">
+                <img
+                  :src="quote.signature.clientSignatureDataUrl"
+                  alt="Signature client"
+                  class="max-h-12 object-contain"
+                />
+              </div>
+              <div v-else-if="quote.signature?.clientStampDataUrl" class="h-20 flex items-end">
+                <img
+                  :src="quote.signature.clientStampDataUrl"
+                  alt="Cachet client"
+                  class="max-h-20 object-contain"
+                />
+              </div>
             </div>
           </div>
         </template>

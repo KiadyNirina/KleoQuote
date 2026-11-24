@@ -82,6 +82,7 @@ describe('computeQuoteTotals', () => {
     taxes: [{ id: '1', label: 'TVA 20%', rate: 20 }],
     paymentTerms: '30 jours',
     conditions: { included: [], excluded: [], maintenance: '', otherNotes: '' },
+    signature: { show: true },
     ...overrides,
   })
 

@@ -45,6 +45,17 @@ export interface QuoteConditions {
   otherNotes: string
 }
 
+export interface QuoteSignature {
+  show: boolean
+  signerName?: string
+  signedAt?: string
+  location?: string
+  clientSignatureDataUrl?: string
+  clientStampDataUrl?: string
+  issuerSignedAt?: string
+  issuerSignatureDataUrl?: string
+}
+
 export interface Quote {
   id: string
   type: DocumentType
@@ -64,6 +75,7 @@ export interface Quote {
   deposit?: Deposit
   paymentTerms: string
   conditions: QuoteConditions
+  signature: QuoteSignature
 }
 
 export interface CompanySettings {

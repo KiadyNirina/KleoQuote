@@ -312,11 +312,123 @@
         </FormField>
       </div>
     </section>
+
+    <!-- 07. Bon pour accord -->
+    <section v-if="quote.signature" class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-2xs transition-colors focus-within:border-stone-400">
+      <div class="flex items-start justify-between gap-4 pb-4 mb-5 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-stone-100 text-stone-800 border border-stone-200 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+            07
+          </span>
+          <div>
+            <h2 class="text-base font-bold text-stone-900">Bon pour accord</h2>
+            <p class="text-xs text-stone-500">Informations de signature pour l'acceptation du document.</p>
+          </div>
+        </div>
+        <label class="flex items-center gap-2 cursor-pointer mt-1">
+          <input 
+            type="checkbox" 
+            v-model="quote.signature.show" 
+            class="rounded border-stone-300 text-stone-900 focus:ring-stone-900"
+          />
+          <span class="text-sm font-medium text-stone-700">Afficher dans le PDF</span>
+        </label>
+      </div>
+
+      <div v-if="quote.signature.show" class="space-y-6">
+        <!-- Émetteur -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-3">Émetteur</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField label="Date de signature émetteur">
+              <FormInput 
+                v-model="quote.signature.issuerSignedAt" 
+                type="date" 
+              />
+            </FormField>
+          </div>
+          <p class="text-xs text-stone-500 mt-2">
+            La signature et le cachet de l'émetteur sont configurés dans les <NuxtLink to="/settings" class="underline hover:text-stone-800">paramètres de l'entreprise</NuxtLink>.
+          </p>
+        </div>
+
+        <!-- Client -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-3">Client</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField label="Nom du signataire (Client)">
+              <FormInput 
+                v-model="quote.signature.signerName" 
+                placeholder="ex : Jean Rakoto" 
+              />
+            </FormField>
+            <FormField label="Date de signature (Client)">
+              <FormInput 
+                v-model="quote.signature.signedAt" 
+                type="date" 
+              />
+            </FormField>
+            <FormField label="Lieu de signature">
+              <FormInput 
+                v-model="quote.signature.location" 
+                placeholder="ex : Antananarivo" 
+              />
+            </FormField>
+            
+            <FormField label="Preuve d'acceptation">
+              <FormSelect 
+                v-model="signatureProofType" 
+                :options="[
+                  { value: 'none', label: 'Aucune (lignes vides)' },
+                  { value: 'signature', label: 'Signature (image)' },
+                  { value: 'stamp', label: 'Cachet (image)' }
+                ]"
+                @update:model-value="onProofTypeChange"
+              />
+            </FormField>
+          </div>
+          
+          <!-- Upload conditionnel -->
+          <div v-if="signatureProofType === 'signature'" class="mt-4">
+            <FormField label="Signature du client (image)">
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                class="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-stone-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-stone-800"
+                @change="onClientSignatureUpload"
+              />
+              <div v-if="quote.signature?.clientSignatureDataUrl" class="mt-2">
+                <img :src="quote.signature.clientSignatureDataUrl" alt="Signature" class="max-h-16 object-contain" />
+                <button type="button" class="text-xs text-red-600 mt-1 hover:underline" @click="quote.signature.clientSignatureDataUrl = undefined">Supprimer</button>
+              </div>
+            </FormField>
+          </div>
+          
+          <div v-if="signatureProofType === 'stamp'" class="mt-4">
+            <FormField label="Cachet du client (image)">
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                class="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-stone-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-stone-800"
+                @change="onClientStampUpload"
+              />
+              <div v-if="quote.signature?.clientStampDataUrl" class="mt-2">
+                <img :src="quote.signature.clientStampDataUrl" alt="Cachet" class="max-h-16 object-contain" />
+                <button type="button" class="text-xs text-red-600 mt-1 hover:underline" @click="quote.signature.clientStampDataUrl = undefined">Supprimer</button>
+              </div>
+            </FormField>
+          </div>
+        </div>
+      </div>
+      <p v-else class="text-xs text-stone-500">
+        Le bloc de signature ne sera pas inclus dans le PDF.
+      </p>
+    </section>
   </form>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useQuoteStore } from '~/stores/quote'
 
@@ -373,6 +485,49 @@ watch(
   }
 )
 
+// Date émetteur par défaut = date de création
+onMounted(() => {
+  if (quote.value.signature && !quote.value.signature.issuerSignedAt && quote.value.createdAt) {
+    quote.value.signature.issuerSignedAt = quote.value.createdAt
+  }
+})
+
+watch(() => quote.value.createdAt, (newVal) => {
+  if (quote.value.signature && !quote.value.signature.issuerSignedAt) {
+    quote.value.signature.issuerSignedAt = newVal
+  }
+})
+
+// État local pour piloter le select
+const signatureProofType = ref<'none' | 'signature' | 'stamp'>('none')
+
+// Initialisation depuis l'état du store
+function syncProofTypeFromStore() {
+  if (!quote.value.signature) return
+  if (quote.value.signature.clientSignatureDataUrl) signatureProofType.value = 'signature'
+  else if (quote.value.signature.clientStampDataUrl) signatureProofType.value = 'stamp'
+  else signatureProofType.value = 'none'
+}
+
+onMounted(syncProofTypeFromStore)
+
+watch(
+  () => quote.value.id,
+  () => syncProofTypeFromStore()
+)
+
+function onProofTypeChange(value: string) {
+  if (!quote.value.signature) return
+  if (value === 'none') {
+    quote.value.signature.clientSignatureDataUrl = undefined
+    quote.value.signature.clientStampDataUrl = undefined
+  } else if (value === 'signature') {
+    quote.value.signature.clientStampDataUrl = undefined
+  } else if (value === 'stamp') {
+    quote.value.signature.clientSignatureDataUrl = undefined
+  }
+}
+
 function onDiscountTypeChange(value: string) {
   if (value === 'none') quote.value.discount = undefined
   else quote.value.discount = { type: value as 'percentage' | 'fixed', value: 0 }
@@ -404,5 +559,53 @@ function splitLines(value: string): string[] {
     .split('\n')
     .map((l) => l.trim())
     .filter(Boolean)
+}
+
+async function onClientSignatureUpload(event: Event) {
+  if (!quote.value.signature) return
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  quote.value.signature.clientSignatureDataUrl = await resizeImage(file, 400)
+  input.value = ''
+}
+
+async function onClientStampUpload(event: Event) {
+  if (!quote.value.signature) return
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  quote.value.signature.clientStampDataUrl = await resizeImage(file, 300)
+  input.value = ''
+}
+
+function resizeImage(file: File, maxSize: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (file.type === 'image/svg+xml') {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => {
+        const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1)
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * ratio)
+        canvas.height = Math.round(img.height * ratio)
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return reject(new Error('Canvas non disponible'))
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve(canvas.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.85))
+      }
+      img.onerror = reject
+      img.src = reader.result as string
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }
 </script>

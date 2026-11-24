@@ -25,6 +25,7 @@ export function createEmptyQuote(type: DocumentType = 'quote'): Quote {
     taxes: [],
     paymentTerms: '',
     conditions: { included: [], excluded: [], maintenance: '', otherNotes: '' },
+    signature: { show: true, signerName: '', signedAt: '', location: '' },
   }
 }
 

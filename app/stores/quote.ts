@@ -5,9 +5,11 @@ import { createEmptyQuote } from '#shared/constants/defaults'
 import { useCompanyStore } from '~/stores/company'
 
 export const useQuoteStore = defineStore('quote', {
-  state: () => ({
-    current: createEmptyQuote() as Quote,
-  }),
+  state: () => {
+    const q = createEmptyQuote()
+    if (!q.signature) q.signature = { show: true }
+    return { current: q }
+  },
 
   actions: {
     reset() {
@@ -25,6 +27,7 @@ export const useQuoteStore = defineStore('quote', {
     },
 
     replace(doc: Quote) {
+      if (!doc.signature) doc.signature = { show: true }
       this.current = doc
     },
   },

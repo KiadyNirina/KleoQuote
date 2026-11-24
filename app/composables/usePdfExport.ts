@@ -55,18 +55,18 @@ export function usePdfExport() {
     if (quote.deliveryDelay) {
       conditionsParts.push({ text: cleanText(`Délai de réalisation : ${quote.deliveryDelay}`), fontSize: 8, margin: [0, 2, 0, 0] })
     }
-    if (quote.paymentTerms) {
+    if (quote.paymentTerms && quote.type !== 'invoice') {
       conditionsParts.push({ text: cleanText(`Modalités de paiement : ${quote.paymentTerms}`), fontSize: 8, margin: [0, 2, 0, 0] })
     }
-    if (quote.conditions.included.length) {
+    if (quote.type !== 'invoice' && quote.conditions.included.length) {
       conditionsParts.push({ text: 'Inclus :', fontSize: 8, bold: true, margin: [0, 4, 0, 1] })
       conditionsParts.push({ ul: [...quote.conditions.included], fontSize: 8 })
     }
-    if (quote.conditions.excluded.length) {
+    if (quote.type !== 'invoice' && quote.conditions.excluded.length) {
       conditionsParts.push({ text: 'Non inclus :', fontSize: 8, bold: true, margin: [0, 4, 0, 1] })
       conditionsParts.push({ ul: [...quote.conditions.excluded], fontSize: 8 })
     }
-    if (quote.conditions.maintenance) {
+    if (quote.type !== 'invoice' && quote.conditions.maintenance) {
       conditionsParts.push({ text: cleanText(`Maintenance : ${quote.conditions.maintenance}`), fontSize: 8, margin: [0, 4, 0, 0] })
     }
     if (quote.conditions.otherNotes) {
@@ -187,7 +187,7 @@ export function usePdfExport() {
           : []),
 
         // Signature (devis uniquement)
-        ...(quote.type === 'quote'
+        ...(quote.type === 'quote' && quote.signature?.show !== false
           ? [
               {
                 margin: [0, 30, 0, 0] as [number, number, number, number],
@@ -199,21 +199,41 @@ export function usePdfExport() {
                         width: '*',
                         stack: [
                           { text: cleanText(company.name || 'Kleonix'), fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
-                          { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                          { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                          {
+                            text: quote.signature?.issuerSignedAt
+                              ? cleanText(`Date : ${formatDate(quote.signature.issuerSignedAt)}`)
+                              : 'Date : ',
+                            fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number]
+                          },
                           ...(company.stampDataUrl
                             ? [{ image: company.stampDataUrl, width: 70, margin: [0, 8, 0, 0] as [number, number, number, number] }]
-                            : []),
+                            : []
+                          ),
                         ],
                       },
                       {
                         width: '*',
                         stack: [
-                          { text: cleanText(quote.client.company || 'Client'), fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number] },
-                          { text: 'Date : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                          { text: 'Signature : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                          { text: 'Nom : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
-                          { text: 'Cachet : ____________________', fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] },
+                          {
+                            text: cleanText(quote.signature?.signerName || quote.client.company || 'Client'),
+                            fontSize: 9, bold: true, margin: [0, 0, 0, 6] as [number, number, number, number]
+                          },
+                          {
+                            text: quote.signature?.signedAt
+                              ? cleanText(`Date : ${formatDate(quote.signature.signedAt)}`)
+                              : 'Date : ',
+                            fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number]
+                          },
+                          ...(quote.signature?.location
+                            ? [{ text: cleanText(`Lieu : ${quote.signature.location}`), fontSize: 8, color: '#555', margin: [0, 2, 0, 0] as [number, number, number, number] }]
+                            : []
+                          ),
+                          ...(quote.signature?.clientSignatureDataUrl
+                            ? [{ image: quote.signature.clientSignatureDataUrl, width: 100, margin: [0, 4, 0, 0] as [number, number, number, number] }]
+                            : quote.signature?.clientStampDataUrl
+                              ? [{ image: quote.signature.clientStampDataUrl, width: 70, margin: [0, 8, 0, 0] as [number, number, number, number] }]
+                              : []
+                          ),
                         ],
                       },
                     ],
